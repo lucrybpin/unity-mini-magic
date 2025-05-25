@@ -4,13 +4,11 @@ using UnityEngine;
 
 public class CardSceneController : MonoBehaviour
 {
-    [field: SerializeField] public HandController HandView                { get; private set; }
-    [field: SerializeField] public CardViewCreator CardViewCreator  { get; private set; }
+    [field: SerializeField] public HandController HandController { get; private set; }
+    [field: SerializeField] public CardViewCreator CardViewCreator { get; private set; }
 
-    [field: SerializeField] public CardData CardData                { get; private set; }
-    [field: SerializeField] public Transform DeckTransform          { get; private set; }
-
-    // TODO: DROP CARD in HandView
+    [field: SerializeField] public CardData CardData { get; private set; }
+    [field: SerializeField] public Transform DeckTransform { get; private set; }
 
     async void Start()
     {
@@ -28,9 +26,21 @@ public class CardSceneController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Card card           = new Card(CardData);
-            CardView newCard    = CardViewCreator.CreateCardView(card, DeckTransform.transform.position, DeckTransform.rotation);
-            _                   = HandView.AddCard(newCard);
+            Card card = new Card(CardData);
+            CardView newCard = CardViewCreator.CreateCardView(card, DeckTransform.transform.position, DeckTransform.rotation);
+            _ = HandController.AddCard(newCard);
         }
+
+        HandControllerResult handResult = HandController.Execute();
+        if (handResult.State == HandControllerState.CastCardRequested)
+        {
+            CastCard(handResult.CardToCast);
+        }
+        
+    }
+
+    public void CastCard(Card card)
+    {
+        Debug.Log($">>>> Castin card: {card.Name}");
     }
 }

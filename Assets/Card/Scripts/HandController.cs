@@ -5,26 +5,52 @@ using UnityEngine.Splines;
 using System.Threading.Tasks;
 using DG.Tweening;
 
+public enum HandControllerState
+{
+    Waiting, // Called when the upper control must solve something. 
+    Idle,
+    DrawingCard,
+    DraggingCard,
+    CastCardRequested,
+}
+
+[Serializable]
+public struct HandControllerResult
+{
+    public HandControllerState State;
+    public Card CardToCast;
+}
+
 [Serializable]
 public class HandController : MonoBehaviour
 {
     [field: SerializeField] public int MaxHandSize                  { get; private set; } = 10;
     [field: SerializeField] public SplineContainer SplineContainer  { get; private set; }
     [field: SerializeField] public List<CardView> Cards             { get; private set; } = new List<CardView>();
-
     [field: SerializeField] public CardHoverAndFocusController CardHoverController { get; private set; }
-
-    bool _isDrawing = false;
-    bool _isDragging = false;
-
-
     [field: SerializeField] public CardView SelectedCard            { get; private set; }
+    [SerializeField] HandControllerResult _result;
+
     Vector2 _mouseWorldPos;
     RaycastHit2D _hit;
 
-    void Update()
+    void Start()
     {
-        if (!_isDrawing &&  !_isDragging)
+        _result = new HandControllerResult();
+        _result.State = HandControllerState.Idle;
+    }
+
+    public HandControllerResult Execute()
+    {
+        if (_result.State == HandControllerState.CastCardRequested)
+            _result.State = HandControllerState.Waiting;
+
+        if (_result.State == HandControllerState.Waiting)
+            return _result;
+
+        if (_result.State != HandControllerState.DrawingCard &&
+            _result.State != HandControllerState.DraggingCard &&
+            _result.State != HandControllerState.CastCardRequested)
             CardHoverController.Execute();
 
         // Draggin Behavior
@@ -32,8 +58,8 @@ public class HandController : MonoBehaviour
         {
             CardHoverController.TryUnFocus();
 
-            _mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            _hit = Physics2D.Raycast(_mouseWorldPos, Vector2.zero);
+            _mouseWorldPos  = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            _hit            = Physics2D.Raycast(_mouseWorldPos, Vector2.zero);
 
             if (_hit.collider != null)
             {
@@ -41,7 +67,7 @@ public class HandController : MonoBehaviour
                 {
                     if (SelectedCard == null)
                     {
-                        _isDragging = true;
+                        _result.State = HandControllerState.DraggingCard;
                         SelectedCard = card;
                     }
                 }
@@ -49,30 +75,51 @@ public class HandController : MonoBehaviour
 
             if (SelectedCard != null)
             {
-                Vector3 cardDragPosition = _mouseWorldPos;
-                cardDragPosition += new Vector3(0f, 0f, -2f);
-                SelectedCard.transform.position = Vector3.MoveTowards(SelectedCard.transform.position, cardDragPosition, 43f * Time.deltaTime);
+                Vector3 cardDragPosition        = _mouseWorldPos;
+                cardDragPosition                += new Vector3(0f, 0f, -2f);
+                SelectedCard.transform.position = Vector3.MoveTowards(SelectedCard.transform.position, cardDragPosition, 73f * Time.deltaTime);
                 SelectedCard.transform.rotation = Quaternion.RotateTowards(SelectedCard.transform.rotation, Quaternion.identity, 70f * Time.deltaTime);
             }
         }
         else
         {
-            _isDragging = false;
             if (SelectedCard != null)
             {
-                SelectedCard = null;
-                Debug.Log($">>>> Released");
+                _mouseWorldPos      = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                _hit                = Physics2D.Raycast(_mouseWorldPos, Vector2.zero);
+                RaycastHit2D[] hits = Physics2D.RaycastAll(_mouseWorldPos, Vector2.zero);
+
+                foreach (RaycastHit2D hit in hits)
+                {
+                    if (hit.collider != null)
+                    {
+                        if (hit.collider.TryGetComponent<CastRegion>(out CastRegion castRegion))
+                        {
+                            _result.State       = HandControllerState.CastCardRequested;
+                            _result.CardToCast  = SelectedCard.Card;
+                        }
+                        else
+                        {
+                            _result.State = HandControllerState.Idle;
+                        }
+                    }
+                    else
+                    {
+                        _result.State = HandControllerState.Idle;
+                    }
+                }
+                SelectedCard        = null;
             }
         }
-
+        return _result;
     }
 
     public async Task AddCard(CardView cardView)
     {
-        _isDrawing = true;
+        _result.State = HandControllerState.DrawingCard;
         Cards.Add(cardView);
         await UpdateCardPositions();
-        _isDrawing = false;
+        _result.State = HandControllerState.Idle;
     }
 
     async Task UpdateCardPositions()

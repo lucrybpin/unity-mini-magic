@@ -28,24 +28,41 @@ public class CardHoverAndFocusController
             if (_hit.collider.TryGetComponent<CardView>(out CardView card))
             {
                 Hover(card);
+
+                // Hover Another Card
+                if (card != CurrentHoveringCard && CurrentHoveringCard != null)
+                {
+                    UnHover(CurrentHoveringCard);
+                    Hover(card);
+                }
+
+                CurrentHoveringCard = card;
+
+                // Focus
+                if (Input.GetMouseButtonDown(1))
+                {
+                    if (FocusedCard != null)
+                        TryUnFocus();
+                    FocusedCard = card;
+                    Focus(card);
+                }
             }
-
-            // Hover Another Card
-            if (card != CurrentHoveringCard && CurrentHoveringCard != null)
+            else
             {
-                UnHover(CurrentHoveringCard);
-                Hover(card);
-            }
+                // Exit Hover
+                if (CurrentHoveringCard != null)
+                {
+                    UnHover(CurrentHoveringCard);
+                    CurrentHoveringCard = null;
+                }
 
-            CurrentHoveringCard = card;
-
-            // Focus
-            if (Input.GetMouseButtonDown(1))
-            {
-                if (FocusedCard != null)
-                    TryUnFocus();
-                FocusedCard = card;
-                Focus(card);
+                // Exit Focus
+                if (Input.GetMouseButtonDown(0))
+                {
+                    if (FocusedCard != null)
+                        TryUnFocus();
+                    FocusedCard = null;
+                }
             }
         }
         else
