@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc09e39a25b19b0469b7b6ee636fd043, type: 3}
+  m_Name: Basic Land
+  m_EditorClassIdentifier: 
+  <Name>k__BackingField: Basic Land
+  <Type>k__BackingField: 0
+  <Description>k__BackingField: This is a basic land.
+  <Cost>k__BackingField: 0
+  <Attack>k__BackingField: 0
+  <Defense>k__BackingField: 0
+  <Sprite>k__BackingField: {fileID: 21300000, guid: ee4e135d6e728ab43a164817a146e605, type: 3}
