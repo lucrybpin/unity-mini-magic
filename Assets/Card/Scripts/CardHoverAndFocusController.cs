@@ -24,10 +24,11 @@ public class CardHoverAndFocusController
             if (_hit.collider.gameObject == _focusInstance)
                 return;
 
-            // Hover New Card
             if (_hit.collider.TryGetComponent<CardView>(out CardView card))
             {
-                Hover(card);
+                // Hover New Card
+                if (!card.Card.IsInField)
+                    Hover(card);
 
                 // Hover Another Card
                 if (card != CurrentHoveringCard && CurrentHoveringCard != null)

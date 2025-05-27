@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using DG.Tweening;
 
 public class CardView : MonoBehaviour
 {
@@ -18,14 +19,14 @@ public class CardView : MonoBehaviour
 
     public void Setup(Card card)
     {
-        Card                    = card;
-        Name.text               = Card.Name;
-        Type.text               = Card.Type.ToString();
-        Description.text        = Card.Description;
-        Cost.text               = Card.Cost.ToString();
-        SpriteRenderer.sprite   = Card.Sprite;
-        Attack.text             = Card.Attack.ToString();
-        Defense.text            = Card.Defense.ToString();
+        Card = card;
+        Name.text = Card.Name;
+        Type.text = Card.Type.ToString();
+        Description.text = Card.Description;
+        Cost.text = Card.Cost.ToString();
+        SpriteRenderer.sprite = Card.Sprite;
+        Attack.text = Card.Attack.ToString();
+        Defense.text = Card.Defense.ToString();
         if (Card.Attack == 0 && Card.Defense == 0)
         {
             CombatSection.SetActive(false);
@@ -36,5 +37,12 @@ public class CardView : MonoBehaviour
     {
         OriginalPosition = position;
         OriginalRotation = rotation;
+    }
+
+    public void Tap()
+    {
+        Quaternion tappedRotation = Quaternion.Euler(0f, 0f, -90f);
+        transform.DORotateQuaternion(tappedRotation, .12f);
+        Card.IsTapped = true;
     }
 }
