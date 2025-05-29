@@ -13,7 +13,6 @@ public class HandControllerV2
     [field: SerializeField] public List<CardView> Cards { get; private set; }
     [field: SerializeField] public CardView CardUnderPointer { get; private set; }
     [field: SerializeField] public CardView HoveringCard { get; private set; }
-    [field: SerializeField] public CardView DraggingCard { get; private set; }
     [field: SerializeField] public CardView SelectedCard { get; private set; }
     [field: SerializeField] public CardView InspectingCard { get; private set; }
     [field: SerializeField] public CastRegion CastRegion { get; private set; }
@@ -29,21 +28,39 @@ public class HandControllerV2
     RaycastHit2D[] _hits;
     Vector2 _dragStartMousePos;
 
+
+    // The best solution would probably split it in a real state machine
+    // but it is working fine so far, I will proceed to more important features now
+
     public void Setup()
     {
         Cards = new List<CardView>();
         _data = new HandControllerResult();
         _data.State = HandControllerState.Idle;
+        SelectedCard = null;
     }
 
     public HandControllerResult Execute()
     {
+        if (_data.State == HandControllerState.CastCardRequested)
+            return _data;
+
+        if (_data.State == HandControllerState.CardInteractionRequested)
+            return _data;
+
+        if (_data.State == HandControllerState.DrawingCard)
+            return _data;
+
         _mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         _hits = Physics2D.RaycastAll(_mouseWorldPos, Vector2.zero); // RaycastNonAlloc is deprecated. If I really need performance, I can try GetRayIntersectionNonAlloc later here
 
         CardUnderPointer = null;
         CastRegion = null;
-        DraggingCard = null;
+        _data.State = HandControllerState.Idle;
+
+        if (InspectingCard != null)
+            _data.State = HandControllerState.InspectingCard;
+
         foreach (RaycastHit2D hit in _hits)
         {
             // Cursor Over Card
@@ -65,10 +82,16 @@ public class HandControllerV2
         if (Input.GetMouseButtonDown(0))
         {
             // Select Card
-            if (CardUnderPointer != null)
+            if (CardUnderPointer != null &&
+                _data.State != HandControllerState.InspectingCard)
             {
                 SelectedCard = CardUnderPointer;
                 _dragStartMousePos = _mouseWorldPos;
+                if (SelectedCard.Card.IsInField)
+                {
+                    _data.State = HandControllerState.CardInteractionRequested;
+                    _data.TargetCard = SelectedCard;
+                }
             }
             else
             {
@@ -84,13 +107,11 @@ public class HandControllerV2
             {
                 Vector3 cardDragPosition = _mouseWorldPos;
                 cardDragPosition += new Vector3(0f, 0f, -2f);
-                SelectedCard.transform.position = cardDragPosition;
-                DraggingCard = SelectedCard;
+                // SelectedCard.transform.position = Vector3.MoveTowards(SelectedCard.transform.position, cardDragPosition, 25 * Time.deltaTime);
+                SelectedCard.transform.position = Vector3.Lerp(SelectedCard.transform.position, cardDragPosition, 25f * Time.deltaTime);
+                SelectedCard.transform.rotation = Quaternion.RotateTowards(SelectedCard.transform.rotation, Quaternion.identity, 37 * Time.deltaTime);
+                _data.State = HandControllerState.DraggingCard;
             }
-            // TODO: Quando soltar o drag e não tiver alvo, voltar a carta para a posição 
-            // original em que estava
-
-            // TODO: Depois que soltar a carta em uma casting region, fazer o Cast
 
             // ExitInspect
             if (InspectingCard != null && CardUnderPointer == null ||
@@ -100,32 +121,45 @@ public class HandControllerV2
             }
         }
 
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (CastRegion != null &&
+                SelectedCard != null &&
+                _data.State != HandControllerState.InspectingCard)
+            {
+                _data.State = HandControllerState.CastCardRequested;
+                _data.TargetCard = SelectedCard;
+                return _data;
+            }
+        }
+
         if (Input.GetMouseButtonDown(1))
         {
             // Inspect Card
             if (CardUnderPointer != null)
             {
-                if(InspectingCard != null)
+                if (InspectingCard != null)
                     ExitInspect();
                 InspectCard(CardUnderPointer);
+                _data.State = HandControllerState.InspectingCard;
             }
         }
 
         // Hover
         if (CardUnderPointer != null &&
             CardUnderPointer.Card.IsInHand &&
-            DraggingCard == null)
+            _data.State == HandControllerState.Idle)
         {
             if (HoveringCard != null)
-                UnHoverCard(HoveringCard);
+                ReturnCardToOriginalPosition(HoveringCard);
             HoverCard(CardUnderPointer);
         }
         // UnHover
-        else if (CardUnderPointer == null &&        // Pointer outside a card
+        else if (CardUnderPointer == null &&
             HoveringCard != null &&
-            DraggingCard == null)
+            _data.State == HandControllerState.Idle)
         {
-            UnHoverCard(HoveringCard);
+            ReturnCardToOriginalPosition(HoveringCard);
         }
 
         return _data;
@@ -136,7 +170,9 @@ public class HandControllerV2
     {
         Cards.Add(cardView);
         cardView.Card.IsInHand = true;
+        _data.State = HandControllerState.DrawingCard;
         await UpdateCardPositions();
+        _data.State = HandControllerState.Idle;
     }
 
     public async Task RemoveCard(CardView cardView)
@@ -177,7 +213,7 @@ public class HandControllerV2
         card.transform.DOMove(card.OriginalPosition + card.transform.up, 0.125f);
     }
 
-    void UnHoverCard(CardView card)
+    void ReturnCardToOriginalPosition(CardView card)
     {
         card.transform.DOKill();
         card.transform.DOScale(Vector3.one, .25f).SetEase(Ease.OutBack);
@@ -203,6 +239,18 @@ public class HandControllerV2
         UnityEngine.Object.Destroy(InspectingCard.gameObject);
         FocusBackground.SetActive(false);
         InspectingCard = null;
+    }
+
+    public void ResolveCast()
+    {
+        SelectedCard = null;
+        _data.State = HandControllerState.Idle;
+    }
+
+    public void ResolveCardInteraciton()
+    {
+        SelectedCard = null;
+        _data.State = HandControllerState.Idle;
     }
 
 }

@@ -7,18 +7,20 @@ using DG.Tweening;
 
 public enum HandControllerState
 {
-    Waiting, // Called when the upper control must solve something. 
+    Paused, // Called when the upper control must solve something. 
     Idle,
     DrawingCard,
     DraggingCard,
     CastCardRequested,
+    CardInteractionRequested, // Usually Tap, or active ability
+    InspectingCard,
 }
 
 [Serializable]
 public struct HandControllerResult
 {
     public HandControllerState State;
-    public CardView CardToCast;
+    public CardView TargetCard;
 }
 
 [Serializable]
@@ -43,9 +45,9 @@ public class HandController : MonoBehaviour
     public HandControllerResult Execute()
     {
         if (_result.State == HandControllerState.CastCardRequested)
-            _result.State = HandControllerState.Waiting;
+            _result.State = HandControllerState.Paused;
 
-        if (_result.State == HandControllerState.Waiting)
+        if (_result.State == HandControllerState.Paused)
             return _result;
 
         if (_result.State != HandControllerState.DrawingCard &&
@@ -72,7 +74,7 @@ public class HandController : MonoBehaviour
                             _result.State = HandControllerState.DraggingCard;
                             SelectedCard = card;
 
-                            if (SelectedCard.Card.IsInField && SelectedCard.Card.Type == CardType.Land)
+                            if (SelectedCard.Card.IsInField && SelectedCard.Card.Type == CardType.Resource)
                             {
                                 SelectedCard.Tap();
                             }
@@ -108,7 +110,7 @@ public class HandController : MonoBehaviour
                         if (hit.collider.TryGetComponent<CastRegion>(out CastRegion castRegion))
                         {
                             _result.State = HandControllerState.CastCardRequested;
-                            _result.CardToCast = SelectedCard;
+                            _result.TargetCard = SelectedCard;
                         }
                         else
                         {

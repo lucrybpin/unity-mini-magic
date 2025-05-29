@@ -43,6 +43,12 @@ public class CardView : MonoBehaviour
     {
         Quaternion tappedRotation = Quaternion.Euler(0f, 0f, -90f);
         transform.DORotateQuaternion(tappedRotation, .12f);
-        Card.IsTapped = true;
+        Card.Tap();
+    }
+
+    public void Untap()
+    {
+        transform.DORotateQuaternion(Quaternion.identity, .12f);
+        Card.Untap();
     }
 }
