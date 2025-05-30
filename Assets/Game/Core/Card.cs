@@ -17,7 +17,7 @@ public class Card
     // Creature Stats
     [field: SerializeField] public int Attack { get; private set; }
     [field: SerializeField] public int Defense { get; private set; }
-    [field: SerializeField] public bool CanAttack { get; private set; }
+    [field: SerializeField] public bool CanAttack { get; set; }
     [field: SerializeField] public bool CanBlock { get; private set; }
 
     // Game Info

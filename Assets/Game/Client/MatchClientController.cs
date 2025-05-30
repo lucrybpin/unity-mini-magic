@@ -16,6 +16,7 @@ public class MatchClientController : MonoBehaviour
   [field: SerializeField] public List<CardData> CardListPlayer2 { get; private set; }
 
   [field: Header("Core Components and SubControllers")]
+  [field: SerializeField] public int PlayerIndex { get; private set; }
   [field: SerializeField] public MatchServerController Server { get; private set; }
   [field: SerializeField] public MatchClientControllerState ClientState { get; private set; }
   [field: SerializeField] public bool DrawEnabled { get; private set; }
@@ -38,6 +39,7 @@ public class MatchClientController : MonoBehaviour
     Server.OnPhaseEnded     += OnPhaseEnded;
     bool result             = await Server.PrepareNewMatch(CardListPlayer1, CardListPlayer2);
     DeckView.OnDeckClick    += OnDeckClick;
+    HandView.OnCardOverCastRegion += OnCardOverCastRegion;
     UIController.OnButtonPassUpkeepClick += OnButtonPassUpkeepClick;
 
     // Draw Starting Hand
@@ -56,6 +58,7 @@ public class MatchClientController : MonoBehaviour
     Server.OnPhaseStarted   -= OnPhaseStarted;
     Server.OnPhaseEnded     -= OnPhaseEnded;
     DeckView.OnDeckClick    -= OnDeckClick;
+    HandView.OnCardOverCastRegion -= OnCardOverCastRegion;
     UIController.OnButtonPassUpkeepClick -= OnButtonPassUpkeepClick;
   }
 
@@ -107,6 +110,12 @@ public class MatchClientController : MonoBehaviour
       _ = OnDeckClickTask();
   }
 
+  void OnCardOverCastRegion(CardView cardView)
+  {
+    if(cardView != null)
+      _ = OnCardOverCastRegionTask(cardView);
+  }
+
   private void OnButtonPassUpkeepClick(int playerId)
   {
     Debug.Log($"<color='green'>Client:</color> Button Pass Upkeep Clicked by Player {playerId}");
@@ -118,11 +127,48 @@ public class MatchClientController : MonoBehaviour
   {
     Debug.Log($"<color='green'>Client:</color> Deck Clicked");
 
-    ClientState = MatchClientControllerState.DrawingCard;
-    Card card = await Server.DrawCard(0);
-    CardView newCard = CardViewCreator.CreateCardView(card, DeckView.transform.position, DeckView.transform.rotation);
+    ClientState       = MatchClientControllerState.DrawingCard;
+    Card card         = await Server.DrawCard(0);
+    CardView newCard  = CardViewCreator.CreateCardView(card, DeckView.transform.position, DeckView.transform.rotation);
     await HandView.AddCard(newCard);
-    ClientState = MatchClientControllerState.Idle;
+    ClientState       = MatchClientControllerState.Idle;
+  }
+
+  async Task OnCardOverCastRegionTask(CardView cardView)
+  {
+    Debug.Log($"<color='green'>Client:</color> Trying to cast {cardView.Card.Name}");
+    
+    bool success = await Server.CastCard(PlayerIndex, cardView.Card);
+    if (!success)
+    {
+      Debug.Log($"<color='green'>Client:</color> card casted failed");
+      return;
+    }
+
+    switch (cardView.Card.Type)
+    {
+      case CardType.Resource:
+        await ProcessResource(cardView);
+        break;
+
+      case CardType.Creature:
+        await ProcessCreature(cardView);
+        break;
+
+      case CardType.Enchantment:
+        await ProcessEnchantment(cardView);
+        break;
+
+      case CardType.Sorcery:
+        await ProcessSorcery(cardView);
+        break;
+
+      case CardType.Instant:
+        await ProcessInstant(cardView);
+        break;
+    }
+
+    Debug.Log($"<color='green'>Client:</color> card casted successfully");
   }
 
   async Task WaitForPlayer1DrawCards(int amountOfCards)
@@ -132,5 +178,38 @@ public class MatchClientController : MonoBehaviour
     {
       await Task.Delay(TimeSpan.FromSeconds(.25f));
     }
+  }
+
+  async Task<bool> ProcessResource(CardView cardView)
+  {
+    Debug.Log($"<color='green'>Client:</color> - Processing Resource");
+
+    await HandView.RemoveCard(cardView);
+    // TODO: LandView Add(cardView);
+    return true;
+  }
+
+  Task<bool> ProcessCreature(CardView cardView)
+  {
+    Debug.Log($"<color='green'>Client:</color> - Processing Creature");
+    return Task.FromResult(true);
+  }
+
+  Task<bool> ProcessEnchantment(CardView cardView)
+  {
+    Debug.Log($"<color='green'>Client:</color> - Processing Enchantment");
+    return Task.FromResult(true);
+  }
+
+  Task<bool> ProcessInstant(CardView cardView)
+  {
+    Debug.Log($"<color='green'>Client:</color> - Processing Instant");
+    return Task.FromResult(true);
+  }
+
+  Task<bool> ProcessSorcery(CardView cardView)
+  {
+    Debug.Log($"<color='green'>Client:</color> - Processing Sorcery");
+    return Task.FromResult(true);
   }
 }

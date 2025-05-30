@@ -11,6 +11,7 @@ public enum HandViewState
     Idle,
     Hover,
     Drawing,
+    Dragging,
     Inspecting,
 }
 
@@ -23,17 +24,21 @@ public class HandView : MonoBehaviour
     [field: SerializeField] public HandViewState State { get; private set; }
     [field: SerializeField] public List<CardView> Cards { get; private set; }
     [field: SerializeField] public CardView CardUnderPointer { get; private set; }
-    [field: SerializeField] public CardView InspectingCard { get; private set; }
     [field: SerializeField] public CardView HoveringCard { get; private set; }
+    [field: SerializeField] public CardView SelectedCard { get; private set; }
+    [field: SerializeField] public CardView InspectingCard { get; private set; }
+    [field: SerializeField] public CastRegion CastRegion { get; private set; }
 
     [field: Header("Dependencies")]
     [field: SerializeField] public SplineContainer SplineContainer { get; private set; }
     [field: SerializeField] public CardViewCreator CardViewCreator { get; private set; }
     [field: SerializeField] public GameObject FocusBackground { get; private set; }
 
-    CardViewCreator _cardViewCreator;
+    public Action<CardView> OnCardOverCastRegion;
+
     Vector2 _mouseWorldPos;
     RaycastHit2D[] _hits;
+    Vector2 _dragStartMousePos;
 
     void Awake()
     {
@@ -46,10 +51,11 @@ public class HandView : MonoBehaviour
         if (State == HandViewState.Paused)
             return;
 
-        _mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        _hits = Physics2D.RaycastAll(_mouseWorldPos, Vector2.zero); // RaycastNonAlloc is deprecated. If I really need performance, I can try GetRayIntersectionNonAlloc later here
+        _mouseWorldPos      = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        _hits               = Physics2D.RaycastAll(_mouseWorldPos, Vector2.zero); // RaycastNonAlloc is deprecated. If I really need performance, I can try GetRayIntersectionNonAlloc later here
 
-        CardUnderPointer = null;
+        CardUnderPointer    = null;
+        CastRegion          = null;
         foreach (RaycastHit2D hit in _hits)
         {
             // Cursor Over Card
@@ -59,12 +65,20 @@ public class HandView : MonoBehaviour
                 if (CardUnderPointer == null)
                     CardUnderPointer = cardView;
             }
+
+            // Cursor Over Cast Region
+            if (hit.collider != null &&
+                hit.collider.TryGetComponent<CastRegion>(out CastRegion castRegion))
+            {
+                CastRegion = castRegion;
+            }
         }
 
         // Hover
         if (CardUnderPointer != null &&
             CardUnderPointer.Card.IsInHand &&
-            State != HandViewState.Drawing)
+            State != HandViewState.Drawing &&
+            State != HandViewState.Dragging)
         {
             if (HoveringCard != null)
                 ReturnCardToOriginalPosition(HoveringCard);
@@ -80,10 +94,47 @@ public class HandView : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            // Select Card
+            if (CardUnderPointer != null &&
+                State != HandViewState.Inspecting)
+            {
+                SelectedCard = CardUnderPointer;
+                _dragStartMousePos = _mouseWorldPos;
+            }
+            else
+            {
+                SelectedCard = null;
+            }
+
+            // Exit Inspect
             if ((InspectingCard != null && CardUnderPointer == null) ||
                 (InspectingCard != null && CardUnderPointer != InspectingCard))
             {
                 ExitInspect();
+            }
+        }
+        else if (Input.GetMouseButton(0))
+        {
+            // Drag Card
+            if (SelectedCard != null &&
+                SelectedCard.Card.IsInHand &&
+                Vector3.Distance(_mouseWorldPos, _dragStartMousePos) > 0.1f)
+            {
+                Vector3 cardDragPosition        = _mouseWorldPos;
+                cardDragPosition                += new Vector3(0f, 0f, -2);
+                SelectedCard.transform.position = Vector3.Lerp(SelectedCard.transform.position, cardDragPosition, 25f * Time.deltaTime);
+                SelectedCard.transform.rotation = Quaternion.RotateTowards(SelectedCard.transform.rotation, Quaternion.identity, 37 * Time.deltaTime);
+                State                           = HandViewState.Dragging;
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (State == HandViewState.Dragging)
+            {
+                ReturnCardToOriginalPosition(SelectedCard);
+                State = HandViewState.Idle;
+                OnCardOverCastRegion?.Invoke(SelectedCard);
             }
         }
 
@@ -116,6 +167,13 @@ public class HandView : MonoBehaviour
         Cards.Add(cardView);
         await UpdateCardPositions();
         State = HandViewState.Idle;
+    }
+
+    public async Task RemoveCard(CardView cardView)
+    {
+        Cards.Remove(cardView);
+        cardView.Card.IsInHand = true;
+        await UpdateCardPositions();
     }
 
     async Task UpdateCardPositions()
@@ -163,7 +221,6 @@ public class HandView : MonoBehaviour
         Vector3 focusPosition = new Vector3(0f, 2.5f, -3f);
 
         InspectingCard = CardViewCreator.CreateCardView(cardView.Card, focusPosition, Quaternion.identity);
-        // InspectingCard = UnityEngine.Object.Instantiate(CardPrefab, focusPosition, Quaternion.identity);
         InspectingCard.transform.name = "Inspecting card";
         InspectingCard.transform.localScale = Vector3.zero;
         InspectingCard.transform.DOScale(2.2f * Vector3.one, 0.25f).SetEase(Ease.OutBack);
@@ -177,6 +234,7 @@ public class HandView : MonoBehaviour
         UnityEngine.Object.Destroy(InspectingCard.gameObject);
         FocusBackground.SetActive(false);
         InspectingCard = null;
+        State = HandViewState.Idle;
     }
 
 }

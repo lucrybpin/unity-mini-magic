@@ -23,11 +23,9 @@ public class HandControllerV2
     [field: SerializeField] public GameObject FocusBackground { get; private set; }
     [SerializeField] HandControllerResult _data;
 
-
     Vector2 _mouseWorldPos;
     RaycastHit2D[] _hits;
     Vector2 _dragStartMousePos;
-
 
     // The best solution would probably split it in a real state machine
     // but it is working fine so far, I will proceed to more important features now
@@ -236,6 +234,9 @@ public class HandControllerV2
 
     public void ExitInspect()
     {
+        if (HoveringCard != null)
+            ReturnCardToOriginalPosition(HoveringCard);
+
         UnityEngine.Object.Destroy(InspectingCard.gameObject);
         FocusBackground.SetActive(false);
         InspectingCard = null;

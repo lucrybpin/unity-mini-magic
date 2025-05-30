@@ -11,8 +11,8 @@ public class MatchServerController
 
   [field: Header("Controllers")]
   [field: SerializeField] public TurnController TurnController { get; private set; }
+  [field: SerializeField] public CardController CardController { get; private set; }
   // [field: SerializeField] public CombatController CombatController { get; private set; }
-  // [field: SerializeField] public CardController CardController { get; private set; }
   // [field: SerializeField] public ZoneController ZoneController { get; private set; }
 
   public Action<GamePhase> OnPhaseStarted;
@@ -22,6 +22,9 @@ public class MatchServerController
   public Task<bool> PrepareNewMatch(List<CardData> CardListPlayer1, List<CardData> CardListPlayer2)
   {
     Debug.Log($"<color='red'>Server:</color> Preparing New Match");
+
+    TurnController = new TurnController(this);
+    CardController = new CardController(this);
 
     MatchState = new MatchState();
     MatchState.TurnNumber = 1;
@@ -69,28 +72,10 @@ public class MatchServerController
 
   public async void StartMatch()
   {
-    TurnController = new TurnController(this);
     Debug.Log($"<color='red'>Server:</color> Starting Match");
+
     
     await TurnController.StartTurn();
-  }
-
-  public void ShuffleDeck(List<Card> deck)
-  {
-    Debug.Log($"<color='red'>Server:</color> Shuffling Deck");
-    // I know that Fisher-Yates in-place is more performatic, but this is
-    // intuitive for me to understand. And I am the maintainer of this code
-
-    List<Card> tempDeck = new List<Card>(deck);
-    System.Random random = new System.Random();
-    deck.Clear();
-
-    while (tempDeck.Count > 0)
-    {
-      int randomIndex = random.Next(tempDeck.Count);
-      deck.Add(tempDeck[randomIndex]);
-      tempDeck.RemoveAt(randomIndex);
-    }
   }
 
   public Task<Card> DrawCard(int playerIndex)
@@ -109,6 +94,44 @@ public class MatchServerController
     drawnCard.IsInHand = true;
 
     return Task.FromResult(drawnCard);
+  }
+
+  public async Task<bool> CastCard(int playerIndex, Card card)
+  {
+    Debug.Log($"<color='red'>Server:</color> Player {playerIndex} trying to cast card {card.Name}");
+
+    PlayerState playerState = MatchState.PlayerStates[playerIndex];
+
+    // Can cast
+    bool canCast = await CardController.CanPlayCard(playerIndex, card);
+    if (!canCast)
+      return false;
+
+    // Remove from Hand
+    playerState.Hand.Remove(card);
+
+    // Process
+    await CardController.ProcessCardPlay(playerIndex, card);
+
+    return true;
+  }
+
+  public void ShuffleDeck(List<Card> deck)
+  {
+    Debug.Log($"<color='red'>Server:</color> Shuffling Deck");
+    // I know that Fisher-Yates in-place is more performatic, but this is
+    // intuitive for me to understand. And I am the maintainer of this code
+
+    List<Card> tempDeck = new List<Card>(deck);
+    System.Random random = new System.Random();
+    deck.Clear();
+
+    while (tempDeck.Count > 0)
+    {
+      int randomIndex = random.Next(tempDeck.Count);
+      deck.Add(tempDeck[randomIndex]);
+      tempDeck.RemoveAt(randomIndex);
+    }
   }
 
   public string SaveState()
