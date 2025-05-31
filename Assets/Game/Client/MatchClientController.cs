@@ -29,6 +29,8 @@ public class MatchClientController : MonoBehaviour
   [field: Header("View Elements")]
   [field: SerializeField] public DeckView DeckView { get; private set; }
   [field: SerializeField] public HandView HandView { get; private set; }
+  [field: SerializeField] public ResourcesView ResourcesView { get; private set; }
+
 
   async void Start()
   {
@@ -138,10 +140,11 @@ public class MatchClientController : MonoBehaviour
   {
     Debug.Log($"<color='green'>Client:</color> Trying to cast {cardView.Card.Name}");
     
-    bool success = await Server.CastCard(PlayerIndex, cardView.Card);
-    if (!success)
+    ExecutionResult result = await Server.CastCard(PlayerIndex, cardView.Card);
+    if (!result.Success)
     {
-      Debug.Log($"<color='green'>Client:</color> card casted failed");
+      Debug.Log($"<color='green'>Client:</color> card casted failed. {result.Message}");
+      HandView.ResolveCast(false);
       return;
     }
 
@@ -168,6 +171,8 @@ public class MatchClientController : MonoBehaviour
         break;
     }
 
+    HandView.ResolveCast(result.Success);
+
     Debug.Log($"<color='green'>Client:</color> card casted successfully");
   }
 
@@ -185,13 +190,15 @@ public class MatchClientController : MonoBehaviour
     Debug.Log($"<color='green'>Client:</color> - Processing Resource");
 
     await HandView.RemoveCard(cardView);
-    // TODO: LandView Add(cardView);
+    await ResourcesView.AddCard(cardView);
     return true;
   }
 
   Task<bool> ProcessCreature(CardView cardView)
   {
     Debug.Log($"<color='green'>Client:</color> - Processing Creature");
+    // Tap All Tapped Lands
+    // Send Creature to Creature Zone
     return Task.FromResult(true);
   }
 

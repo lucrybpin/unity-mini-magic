@@ -12,49 +12,96 @@ public class CardController
         Server = matchServerController;
     }
 
-    public Task<bool> CanPlayCard(int playerIndex, Card card)
+    public Task<ExecutionResult> CanPlayCard(int playerIndex, Card card)
     {
         PlayerState playerState = Server.MatchState.PlayerStates[playerIndex];
+        ExecutionResult result = new ExecutionResult();
 
-        int availableResource = playerState.ResourceZone.Count;
+        int availableResource = 0;
 
-        if(!playerState.Hand.Contains(card))
+        foreach (Card resourceCard in playerState.ResourceZone)
         {
-            Debug.Log($"<color='red'>Server:</color> CastController - Can't play card {card.Name}. Not in hand");
-            return Task.FromResult(false);
+            if (!resourceCard.IsTapped)
+                availableResource++;
         }
 
-        if (card.Data.Cost > availableResource)
+        if (!playerState.Hand.Contains(card))
         {
-            Debug.Log($"<color='red'>Server:</color> CastController - Can't play card {card.Name}. Not enough resources");
-            return Task.FromResult(false);
+            result.Success = false;
+            result.Message = $"CardController - {card.Name} is not in hand";
+            return Task.FromResult(result);
         }
+
+        if (card.Data.Type != CardType.Resource && card.Data.Cost > availableResource)
+        {
+            result.Success = false;
+            result.Message = $"CardController - Can't play card {card.Name} because there is not enough resources";
+            return Task.FromResult(result);
+        }
+
+        // Play only in current player turn and main phase
+        GamePhase currentPhase  = Server.MatchState.CurrentPhase;
+        bool isPlayerTurn       = Server.MatchState.CurrentPlayerIndex == playerIndex;
+        bool isMainPhase        = currentPhase == GamePhase.MainPhase1 || currentPhase == GamePhase.MainPhase2;
 
         switch (card.Data.Type)
         {
             case CardType.Instant:
-                return Task.FromResult(true);
+                result.Success = true;
+                result.Message = $"CardController - success";
+                break;
+
             case CardType.Resource:
+                if (playerState.ResourcesPlayedThisTurn != 0)
+                {
+                    result.Success = false;
+                    result.Message = $"CardController - Can't play card {card.Name}. Already casted a resource this turn";
+                    break;
+                }
+
+                if (!isMainPhase)
+                {
+                    result.Success = false;
+                    result.Message = $"CardController - Can't play card {card.Name} because it is not the main phase";
+                    break;
+                }
+
+                if (!isPlayerTurn)
+                {
+                    result.Success = false;
+                    result.Message = $"CardController - Can't play card {card.Name} because it is not player turn";
+                    break;
+                }
+
+                result.Success = true;
+                result.Message = $"CardController - success";
+                break;
+
             case CardType.Sorcery:
             case CardType.Creature:
             case CardType.Enchantment:
             case CardType.Artifact:
-                // Play only in current player turn and main phase
-                GamePhase currentPhase = Server.MatchState.CurrentPhase;
-                bool isPlayerTurn = Server.MatchState.CurrentPlayerIndex == playerIndex;
-                bool isMainPhase = currentPhase == GamePhase.MainPhase1 || currentPhase == GamePhase.MainPhase2;
 
-                if(!isMainPhase)
-                    Debug.Log($"<color='red'>Server:</color> CastController - Can't play card {card.Name}. Not main phase");
-                else if(!isPlayerTurn)
-                    Debug.Log($"<color='red'>Server:</color> CastController - Can't play card {card.Name}. Not player turn");
-                else
-                    Debug.Log($"<color='red'>Server:</color> CastController - Can play card {card.Name}.");
+                if (!isMainPhase)
+                {
+                    result.Success = false;
+                    result.Message = $"CardController - Can't play card {card.Name} because it is not the main phase";
+                    break;
+                }
 
-                return Task.FromResult(isPlayerTurn && isMainPhase);
+                if (!isPlayerTurn)
+                {
+                    result.Success = false;
+                    result.Message = $"CardController - Can't play card {card.Name} because it is not player turn";
+                    break;
+                }
+
+                result.Success = true;
+                result.Message = $"CardController - success";
+                break;
         }
 
-        return Task.FromResult(false);
+        return Task.FromResult(result);
     }
 
     public async Task ProcessCardPlay(int playerIndex, Card card)
@@ -68,28 +115,34 @@ public class CardController
         switch (card.Type)
         {
             case CardType.Resource:
-                playerState.ResourceZone.Add(card);
+                Server.ZonesController.MoveCard(card, ZoneType.Hand, ZoneType.Resource, playerIndex);
+                playerState.ResourcesPlayedThisTurn++;
+                // playerState.ResourceZone.Add(card);
                 await ProcessResource(card);
                 break;
 
             case CardType.Creature:
-                playerState.CreatureZone.Add(card);
+                Server.ZonesController.MoveCard(card, ZoneType.Hand, ZoneType.Creature, playerIndex);
+                // playerState.CreatureZone.Add(card);
                 await ProcessCreature(card);
                 break;
 
             case CardType.Enchantment:
-                playerState.EnchantmentZone.Add(card);
+                Server.ZonesController.MoveCard(card, ZoneType.Hand, ZoneType.Enchantment, playerIndex);
+                // playerState.EnchantmentZone.Add(card);
                 await ProcessEnchantment(card);
                 break;
 
             case CardType.Sorcery:
                 await ProcessSorcery(card);
-                playerState.Graveyard.Add(card);
+                Server.ZonesController.MoveCard(card, ZoneType.Hand, ZoneType.Graveyard, playerIndex);
+                // playerState.GraveyardZone.Add(card);
                 break;
 
             case CardType.Instant:
                 await ProcessInstant(card);
-                playerState.Graveyard.Add(card);
+                Server.ZonesController.MoveCard(card, ZoneType.Hand, ZoneType.Graveyard, playerIndex);
+                // playerState.GraveyardZone.Add(card);
                 break;
         }
     }

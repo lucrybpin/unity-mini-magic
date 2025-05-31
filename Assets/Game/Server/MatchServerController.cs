@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
+public struct ExecutionResult
+{
+  public bool Success;
+  public string Message;
+}
+
 [Serializable]
 public class MatchServerController
 {
@@ -12,8 +18,8 @@ public class MatchServerController
   [field: Header("Controllers")]
   [field: SerializeField] public TurnController TurnController { get; private set; }
   [field: SerializeField] public CardController CardController { get; private set; }
+  [field: SerializeField] public ZonesController ZonesController { get; private set; }
   // [field: SerializeField] public CombatController CombatController { get; private set; }
-  // [field: SerializeField] public ZoneController ZoneController { get; private set; }
 
   public Action<GamePhase> OnPhaseStarted;
   public Action<GamePhase> OnPhaseEnded;
@@ -25,6 +31,7 @@ public class MatchServerController
 
     TurnController = new TurnController(this);
     CardController = new CardController(this);
+    ZonesController = new ZonesController(this);
 
     MatchState = new MatchState();
     MatchState.TurnNumber = 1;
@@ -96,24 +103,28 @@ public class MatchServerController
     return Task.FromResult(drawnCard);
   }
 
-  public async Task<bool> CastCard(int playerIndex, Card card)
+  public async Task<ExecutionResult> CastCard(int playerIndex, Card card)
   {
     Debug.Log($"<color='red'>Server:</color> Player {playerIndex} trying to cast card {card.Name}");
 
     PlayerState playerState = MatchState.PlayerStates[playerIndex];
 
     // Can cast
-    bool canCast = await CardController.CanPlayCard(playerIndex, card);
-    if (!canCast)
-      return false;
+    ExecutionResult result = await CardController.CanPlayCard(playerIndex, card);
+    if (!result.Success)
+    {
+      Debug.Log($"<color='red'>Server:</color> {result.Message}");
+      return new ExecutionResult() { Success = false, Message = result.Message};
+    }
 
-    // Remove from Hand
-    playerState.Hand.Remove(card);
+    // // Remove from Hand
+    // playerState.Hand.Remove(card);
 
     // Process
     await CardController.ProcessCardPlay(playerIndex, card);
 
-    return true;
+    Debug.Log($"<color='red'>Server:</color> {result.Message}");
+    return new ExecutionResult() { Success = true, Message = "Success" };
   }
 
   public void ShuffleDeck(List<Card> deck)

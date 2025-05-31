@@ -16,6 +16,9 @@ public class TurnController
     {
         Debug.Log($"<color='red'>Server:</color> TurnController - Starting Turn {Server.MatchState.TurnNumber} - Player {Server.MatchState.CurrentPlayerIndex}");
 
+        int currentPlayerIndex = Server.MatchState.CurrentPlayerIndex;
+        Server.MatchState.PlayerStates[currentPlayerIndex].ResourcesPlayedThisTurn = 0;
+
         await ExecutePhase(GamePhase.Beginning);
         await ExecutePhase(GamePhase.MainPhase1);
     }

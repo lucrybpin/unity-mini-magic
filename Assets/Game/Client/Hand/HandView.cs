@@ -132,8 +132,8 @@ public class HandView : MonoBehaviour
         {
             if (State == HandViewState.Dragging)
             {
-                ReturnCardToOriginalPosition(SelectedCard);
-                State = HandViewState.Idle;
+                // ReturnCardToOriginalPosition(SelectedCard);
+                Pause(); // Client Controller will resolve the cast
                 OnCardOverCastRegion?.Invoke(SelectedCard);
             }
         }
@@ -161,6 +161,19 @@ public class HandView : MonoBehaviour
         State = HandViewState.Idle;
     }
 
+    public void ResolveCast(bool success)
+    {
+        if (success)
+        {
+            Resume();
+        }
+        else
+        {
+            Resume();
+            _ = UpdateCardPositions();
+        }
+    }
+
     public async Task AddCard(CardView cardView)
     {
         State = HandViewState.Drawing;
@@ -172,7 +185,7 @@ public class HandView : MonoBehaviour
     public async Task RemoveCard(CardView cardView)
     {
         Cards.Remove(cardView);
-        cardView.Card.IsInHand = true;
+        cardView.Card.IsInHand = false;
         await UpdateCardPositions();
     }
 

@@ -41,8 +41,8 @@ public class Card
         // Creature Info
         Attack = Data.Attack;
         Defense = Data.Defense;
-        CanAttack = true;
-        CanBlock = true;
+        CanAttack = Type == CardType.Creature;
+        CanBlock = Type == CardType.Creature;
         // Game Info
         InstanceID = Guid.NewGuid().ToString();
         IsInHand = true;

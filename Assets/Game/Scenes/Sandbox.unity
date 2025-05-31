@@ -128,9 +128,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 17746573}
+  - component: {fileID: 17746574}
   - component: {fileID: 17746572}
   m_Layer: 0
-  m_Name: Container Land  Region
+  m_Name: Resources View
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -207,6 +208,20 @@ Transform:
   - {fileID: 1468093702}
   m_Father: {fileID: 1575111850}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &17746574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 17746571}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff940a91e6f22b0459e98fdc03d9bcf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <SplineContainer>k__BackingField: {fileID: 1468093703}
+  <Resources>k__BackingField: []
 --- !u!1 &107698468
 GameObject:
   m_ObjectHideFlags: 0
@@ -600,8 +615,10 @@ MonoBehaviour:
   <State>k__BackingField: 0
   <Cards>k__BackingField: []
   <CardUnderPointer>k__BackingField: {fileID: 0}
-  <InspectingCard>k__BackingField: {fileID: 0}
   <HoveringCard>k__BackingField: {fileID: 0}
+  <SelectedCard>k__BackingField: {fileID: 0}
+  <InspectingCard>k__BackingField: {fileID: 0}
+  <CastRegion>k__BackingField: {fileID: 0}
   <SplineContainer>k__BackingField: {fileID: 1788108587}
   <CardViewCreator>k__BackingField: {fileID: 1784210181}
   <FocusBackground>k__BackingField: {fileID: 1397523551}
@@ -1272,6 +1289,333 @@ MonoBehaviour:
                     <TurnController>k__BackingField:
                       <Server>k__BackingField:
                         <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+            <CardController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+        <CardController>k__BackingField:
+          <Server>k__BackingField:
+            <MatchState>k__BackingField:
+              CurrentPlayerIndex: 0
+              CurrentPhase: 0
+              CurrentCombatStep: 0
+              TurnNumber: 0
+              PlayerStates: []
+            <IsGameActive>k__BackingField: 0
+            <TurnController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+            <CardController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+    <CardController>k__BackingField:
+      <Server>k__BackingField:
+        <MatchState>k__BackingField:
+          CurrentPlayerIndex: 0
+          CurrentPhase: 0
+          CurrentCombatStep: 0
+          TurnNumber: 0
+          PlayerStates: []
+        <IsGameActive>k__BackingField: 0
+        <TurnController>k__BackingField:
+          <Server>k__BackingField:
+            <MatchState>k__BackingField:
+              CurrentPlayerIndex: 0
+              CurrentPhase: 0
+              CurrentCombatStep: 0
+              TurnNumber: 0
+              PlayerStates: []
+            <IsGameActive>k__BackingField: 0
+            <TurnController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+            <CardController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+        <CardController>k__BackingField:
+          <Server>k__BackingField:
+            <MatchState>k__BackingField:
+              CurrentPlayerIndex: 0
+              CurrentPhase: 0
+              CurrentCombatStep: 0
+              TurnNumber: 0
+              PlayerStates: []
+            <IsGameActive>k__BackingField: 0
+            <TurnController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+            <CardController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
   <HandController2>k__BackingField:
     <MaxHandSize>k__BackingField: 10
     <Cards>k__BackingField: []
@@ -1662,8 +2006,8 @@ MonoBehaviour:
   <CardListPlayer1>k__BackingField:
   - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
   - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
-  - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
-  - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
+  - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
+  - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
@@ -1681,6 +2025,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
+  <PlayerIndex>k__BackingField: 0
   <Server>k__BackingField:
     <MatchState>k__BackingField:
       CurrentPlayerIndex: 0
@@ -1728,6 +2073,333 @@ MonoBehaviour:
                     <TurnController>k__BackingField:
                       <Server>k__BackingField:
                         <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+            <CardController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+        <CardController>k__BackingField:
+          <Server>k__BackingField:
+            <MatchState>k__BackingField:
+              CurrentPlayerIndex: 0
+              CurrentPhase: 0
+              CurrentCombatStep: 0
+              TurnNumber: 0
+              PlayerStates: []
+            <IsGameActive>k__BackingField: 0
+            <TurnController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+            <CardController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+    <CardController>k__BackingField:
+      <Server>k__BackingField:
+        <MatchState>k__BackingField:
+          CurrentPlayerIndex: 0
+          CurrentPhase: 0
+          CurrentCombatStep: 0
+          TurnNumber: 0
+          PlayerStates: []
+        <IsGameActive>k__BackingField: 0
+        <TurnController>k__BackingField:
+          <Server>k__BackingField:
+            <MatchState>k__BackingField:
+              CurrentPlayerIndex: 0
+              CurrentPhase: 0
+              CurrentCombatStep: 0
+              TurnNumber: 0
+              PlayerStates: []
+            <IsGameActive>k__BackingField: 0
+            <TurnController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+            <CardController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+        <CardController>k__BackingField:
+          <Server>k__BackingField:
+            <MatchState>k__BackingField:
+              CurrentPlayerIndex: 0
+              CurrentPhase: 0
+              CurrentCombatStep: 0
+              TurnNumber: 0
+              PlayerStates: []
+            <IsGameActive>k__BackingField: 0
+            <TurnController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+            <CardController>k__BackingField:
+              <Server>k__BackingField:
+                <MatchState>k__BackingField:
+                  CurrentPlayerIndex: 0
+                  CurrentPhase: 0
+                  CurrentCombatStep: 0
+                  TurnNumber: 0
+                  PlayerStates: []
+                <IsGameActive>k__BackingField: 0
+                <TurnController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                <CardController>k__BackingField:
+                  <Server>k__BackingField:
+                    <MatchState>k__BackingField:
+                      CurrentPlayerIndex: 0
+                      CurrentPhase: 0
+                      CurrentCombatStep: 0
+                      TurnNumber: 0
+                      PlayerStates: []
+                    <IsGameActive>k__BackingField: 0
+                    <TurnController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
+                    <CardController>k__BackingField:
+                      <Server>k__BackingField:
+                        <IsGameActive>k__BackingField: 0
   <ClientState>k__BackingField: 0
   <DrawEnabled>k__BackingField: 0
   <UIController>k__BackingField: {fileID: 107698473}
@@ -1735,6 +2407,7 @@ MonoBehaviour:
   <DeckTransform>k__BackingField: {fileID: 383832109}
   <DeckView>k__BackingField: {fileID: 383832111}
   <HandView>k__BackingField: {fileID: 222142860}
+  <ResourcesView>k__BackingField: {fileID: 17746574}
 --- !u!1 &1037072351
 GameObject:
   m_ObjectHideFlags: 0
@@ -2708,7 +3381,7 @@ GameObject:
   - component: {fileID: 1468093702}
   - component: {fileID: 1468093703}
   m_Layer: 0
-  m_Name: Land Spline
+  m_Name: Resources Spline
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2759,7 +3432,7 @@ MonoBehaviour:
     m_Knots:
     - Position:
         x: -9.5
-        y: -4.3
+        y: 0
         z: 0
       TangentIn:
         x: 0
@@ -2777,7 +3450,7 @@ MonoBehaviour:
           w: 0.7071069
     - Position:
         x: 0
-        y: -4.3
+        y: 0
         z: 0
       TangentIn:
         x: 0
@@ -2795,7 +3468,7 @@ MonoBehaviour:
           w: 0.5000037
     - Position:
         x: 9.5
-        y: -4.3
+        y: 0
         z: 0
       TangentIn:
         x: 0
