@@ -48,4 +48,24 @@ public class ResourcesView : MonoBehaviour
         }
         await Task.Delay(TimeSpan.FromSeconds(0.12f));
     }
+
+    public async Task SyncStatesWithServer(List<Card> serverResourcesZone)
+    {
+        foreach (Card serverCard in serverResourcesZone)
+        {
+            CardView cardView = Resources.Find(view => view.Card.InstanceID == serverCard.InstanceID);
+
+            if (cardView != null)
+            {
+                if (serverCard.IsTapped && !cardView.IsVisuallyTapped())
+                {
+                    await cardView.Tap();
+                }
+                else if (!serverCard.IsTapped && cardView.IsVisuallyTapped())
+                {
+                    await cardView.Untap();
+                }
+            }
+        }
+    }
 }

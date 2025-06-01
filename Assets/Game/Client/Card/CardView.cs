@@ -1,6 +1,8 @@
 using UnityEngine;
 using TMPro;
 using DG.Tweening;
+using System.Threading.Tasks;
+using System;
 
 public class CardView : MonoBehaviour
 {
@@ -39,16 +41,27 @@ public class CardView : MonoBehaviour
         OriginalRotation = rotation;
     }
 
-    public void Tap()
+    public bool IsVisuallyTapped()
+    {
+        Quaternion tappedRotation = Quaternion.Euler(0f, 0f, -90f);
+        if (transform.rotation == tappedRotation)
+            return true;
+
+        return false;
+    }
+
+    public async Task Tap()
     {
         Quaternion tappedRotation = Quaternion.Euler(0f, 0f, -90f);
         transform.DORotateQuaternion(tappedRotation, .12f);
         Card.Tap();
+        await Task.Delay(TimeSpan.FromSeconds(0.12f));
     }
 
-    public void Untap()
+    public async Task Untap()
     {
         transform.DORotateQuaternion(Quaternion.identity, .12f);
         Card.Untap();
+        await Task.Delay(TimeSpan.FromSeconds(0.12f));
     }
 }

@@ -117,9 +117,6 @@ public class MatchServerController
       return new ExecutionResult() { Success = false, Message = result.Message};
     }
 
-    // // Remove from Hand
-    // playerState.Hand.Remove(card);
-
     // Process
     await CardController.ProcessCardPlay(playerIndex, card);
 
