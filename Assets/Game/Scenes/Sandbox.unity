@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 17746574}
   - component: {fileID: 17746572}
   m_Layer: 0
-  m_Name: Resources View
+  m_Name: Resources Zone View
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -981,9 +981,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 418118676}
+  - component: {fileID: 418118678}
   - component: {fileID: 418118677}
   m_Layer: 0
-  m_Name: Container Creatures Region
+  m_Name: Creatures Zone View
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1060,6 +1061,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &418118678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418118675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cde6f66822af82743a3e41b17bf4ca10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <SplineContainer>k__BackingField: {fileID: 2109726271}
+  <Creatures>k__BackingField: []
 --- !u!1 &532736551
 GameObject:
   m_ObjectHideFlags: 0
@@ -2407,6 +2422,7 @@ MonoBehaviour:
   <DeckTransform>k__BackingField: {fileID: 383832109}
   <DeckView>k__BackingField: {fileID: 383832111}
   <HandView>k__BackingField: {fileID: 222142860}
+  <CreaturesView>k__BackingField: {fileID: 418118678}
   <ResourcesView>k__BackingField: {fileID: 17746574}
 --- !u!1 &1037072351
 GameObject:
