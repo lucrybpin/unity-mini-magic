@@ -42,7 +42,7 @@ public class HandController : MonoBehaviour
         _result.State = HandControllerState.Idle;
     }
 
-    public HandControllerResult Execute()
+    public async Task<HandControllerResult> Execute()
     {
         if (_result.State == HandControllerState.CastCardRequested)
             _result.State = HandControllerState.Paused;
@@ -76,7 +76,7 @@ public class HandController : MonoBehaviour
 
                             if (SelectedCard.Card.IsInField && SelectedCard.Card.Type == CardType.Resource)
                             {
-                                SelectedCard.Tap();
+                                _ = SelectedCard.Tap();
                             }
                         }
                     }

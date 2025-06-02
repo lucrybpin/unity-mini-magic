@@ -6,10 +6,16 @@ using UnityEngine;
 public class TurnController
 {
     [field: SerializeField] public MatchServerController Server { get; private set; }
+    [field: SerializeField] public BeginningPhaseController BeginningPhase { get; private set; }
+    [field: SerializeField] public MainPhase1Controller MainPhase1 { get; private set; }
+    [field: SerializeField] public CombatPhaseController CombatPhase { get; private set; }
 
     public TurnController(MatchServerController matchServerController)
     {
-        Server = matchServerController;
+        Server          = matchServerController;
+        BeginningPhase  = new BeginningPhaseController(Server);
+        MainPhase1      = new MainPhase1Controller(Server);
+        CombatPhase     = new CombatPhaseController(Server);
     }
 
     public async Task StartTurn()
@@ -21,6 +27,7 @@ public class TurnController
 
         await ExecutePhase(GamePhase.Beginning);
         await ExecutePhase(GamePhase.MainPhase1);
+        await ExecutePhase(GamePhase.Combat);
     }
 
     async Task ExecutePhase(GamePhase phase)
@@ -32,12 +39,13 @@ public class TurnController
         switch (phase)
         {
             case GamePhase.Beginning:
-                await ExecuteBeginningPhase();
+                await BeginningPhase.Execute();
                 break;
             case GamePhase.MainPhase1:
-                await ExecuteMainPhase();
+                await MainPhase1.Execute();
                 break;
             case GamePhase.Combat:
+                await CombatPhase.Execute();
                 break;
             case GamePhase.MainPhase2:
                 break;
@@ -45,75 +53,4 @@ public class TurnController
                 break;
         }
     }
-
-    async Task ExecuteBeginningPhase()
-    {
-        Debug.Log($"<color='red'>Server:</color> Turn Controller - Executing Beginning Phase...");
-        
-        // Untap -> Upkeep -> Draw
-
-        int playerIndex         = Server.MatchState.CurrentPlayerIndex;
-        PlayerState playerState = Server.MatchState.PlayerStates[playerIndex];
-
-        // Untap Resources
-        foreach (Card resource in playerState.ResourceZone)
-        {
-            if (resource.IsTapped)
-                resource.Untap();
-        }
-
-        // Untap Creatures
-        foreach (Card creature in playerState.CreatureZone)
-        {
-            if (creature.IsTapped)
-                creature.Untap();
-        }
-
-        // Upkeep
-        await Upkeep();
-
-        // Draw Card
-        if (Server.MatchState.TurnNumber > 1)
-        {
-            Card newCard = await Server.DrawCard(playerIndex);
-        }
-    }
-
-    async Task ExecuteMainPhase()
-    {
-        Debug.Log($"<color='red'>Server:</color> Turn Controller - Executing Main Phase ...");
-
-        TaskCompletionSource<bool> opponentPassedUpkeep = new TaskCompletionSource<bool>();
-        float upkeepTimeout = 120f;
-
-        // Server.OnPlayerPassedUpkeep += OnPlayerPassedUpkep;
-        Task timeout = Task.Delay(TimeSpan.FromSeconds(upkeepTimeout));
-        Task finished = await Task.WhenAny(opponentPassedUpkeep.Task, timeout);
-        // Server.OnPlayerPassedUpkeep -= OnPlayerPassedUpkep;
-    }
-
-    async Task Upkeep()
-    {
-        Debug.Log($"<color='red'>Server:</color> Turn Controller - Upkeep started...");
-
-        TaskCompletionSource<bool> opponentPassedUpkeep = new TaskCompletionSource<bool>();
-        float upkeepTimeout = 10f;
-
-        Server.OnPlayerPassedUpkeep += OnPlayerPassedUpkep;
-        Task timeout = Task.Delay(TimeSpan.FromSeconds(upkeepTimeout));
-        Task finished = await Task.WhenAny(opponentPassedUpkeep.Task, timeout);
-        Server.OnPlayerPassedUpkeep -= OnPlayerPassedUpkep;
-
-        if (finished == timeout)
-            Debug.Log($"<color='red'>Server:</color> Turn Controller - Upkeep End: timeout...");
-        else
-            Debug.Log($"<color='red'>Server:</color> Turn Controller - Upkeep End: passed by opponent");
-
-        void OnPlayerPassedUpkep(int playerIndex)
-        {
-            if (playerIndex != Server.MatchState.CurrentPlayerIndex)
-                opponentPassedUpkeep.SetResult(true);
-        }
-    }
-
 }

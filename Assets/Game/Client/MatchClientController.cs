@@ -44,6 +44,8 @@ public class MatchClientController : MonoBehaviour
     DeckView.OnDeckClick    += OnDeckClick;
     HandView.OnCardOverCastRegion += OnCardOverCastRegion;
     UIController.OnButtonPassUpkeepClick += OnButtonPassUpkeepClick;
+    UIController.OnButtonPassMainPhase1Click += OnButtonPassMainPhase1Click;
+    UIController.OnButtonPassCombatBeginningPhaseClick += OnButtonPassCombatBeginningPhaseClick;
 
     // Draw Starting Hand
     HandView.Resume();
@@ -56,13 +58,15 @@ public class MatchClientController : MonoBehaviour
     Server.StartMatch();
   }
 
-  void OnDestroy()
+    void OnDestroy()
   {
     Server.OnPhaseStarted   -= OnPhaseStarted;
     Server.OnPhaseEnded     -= OnPhaseEnded;
     DeckView.OnDeckClick    -= OnDeckClick;
     HandView.OnCardOverCastRegion -= OnCardOverCastRegion;
     UIController.OnButtonPassUpkeepClick -= OnButtonPassUpkeepClick;
+    UIController.OnButtonPassMainPhase1Click -= OnButtonPassMainPhase1Click;
+    UIController.OnButtonPassCombatBeginningPhaseClick -= OnButtonPassCombatBeginningPhaseClick;
   }
 
   // Server Events
@@ -76,8 +80,10 @@ public class MatchClientController : MonoBehaviour
         UIController.SetButtonPassUpkeepVisibility(true);
         break;
       case GamePhase.MainPhase1:
+        UIController.SetButtonPassMainPhase1Visibility(true);
         break;
       case GamePhase.Combat:
+        UIController.SetButonPassCombatBeginningPhase(true);
         break;
       case GamePhase.MainPhase2:
         break;
@@ -96,8 +102,10 @@ public class MatchClientController : MonoBehaviour
         UIController.SetButtonPassUpkeepVisibility(false);
         break;
       case GamePhase.MainPhase1:
+        UIController.SetButtonPassMainPhase1Visibility(false);
         break;
       case GamePhase.Combat:
+        UIController.SetButonPassCombatBeginningPhase(false);
         break;
       case GamePhase.MainPhase2:
         break;
@@ -123,6 +131,18 @@ public class MatchClientController : MonoBehaviour
   {
     Debug.Log($"<color='green'>Client:</color> Button Pass Upkeep Clicked by Player {playerId}");
     Server.OnPlayerPassedUpkeep(playerId);
+  }
+
+  private void OnButtonPassMainPhase1Click(int playerId)
+  {
+    Debug.Log($"<color='green'>Client:</color> Button Pass Main Phase 1 Clicked by Player {playerId}");
+    Server.OnPlayerPassedMainPhase1(playerId);
+  }
+
+  private void OnButtonPassCombatBeginningPhaseClick(int playerId)
+  {
+    Debug.Log($"<color='green'>Client:</color> Button Pass Combat Beginning Phase Clicked by Player {playerId}");
+    Server.OnPlayerPassedBeginningCombatStep(playerId);
   }
 
   // Support Methods

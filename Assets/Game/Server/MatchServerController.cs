@@ -24,6 +24,8 @@ public class MatchServerController
   public Action<GamePhase> OnPhaseStarted;
   public Action<GamePhase> OnPhaseEnded;
   public Action<int> OnPlayerPassedUpkeep;
+  public Action<int> OnPlayerPassedMainPhase1;
+  public Action<int> OnPlayerPassedBeginningCombatStep;
 
   public Task<bool> PrepareNewMatch(List<CardData> CardListPlayer1, List<CardData> CardListPlayer2)
   {
