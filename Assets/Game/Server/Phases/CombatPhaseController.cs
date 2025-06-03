@@ -1,65 +1,107 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
+[Serializable]
 public class CombatPhaseController
 {
-    [field: SerializeField] public MatchServerController Server { get; private set; }
+    [field: SerializeField, NonSerialized] public MatchServerController Server { get; private set; }
 
+    [field: SerializeField] public List<Card> Attackers { get; private set; }
 
     public CombatPhaseController(MatchServerController server)
     {
         Server = server;
+        Attackers = new List<Card>();
     }
 
     public async Task Execute()
     {
-        Debug.Log($"<color='red'>Server:</color> Turn Controller - CombatPhase Started...");
+        Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Started...");
 
         // Beginning of Combat -> Declare Atkers -> Declare Blckers -> First Strike Damage -> Damage -> End Of Combat
 
         await BeginningOfCombat();
 
-        Debug.Log($"<color='red'>Server:</color> Turn Controller - CombatPhase - Declare Attackers");
-        // TODO: Declare atackers
+        await DeclareAttackers();
 
     }
 
     async Task BeginningOfCombat()
     {
-        Debug.Log($"<color='red'>Server:</color> Turn Controller - CombatPhaseController - Beginning of Combat");
+        Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Beginning of Combat");
 
-        bool _player1SkippedBeginning = false;
-        bool _player2SkippedBeginning = false;
+        Server.MatchState.CurrentCombatStep = CombatStep.BeginCombat;
+        Server.OnCombatStepStarted?.Invoke(CombatStep.BeginCombat);
+        bool _player1Skipped = false;
+        bool _player2Skipped = false;
 
-        // TaskCompletionSource<bool> opponentPassedCombatPhase = new TaskCompletionSource<bool>();
-        TaskCompletionSource<bool> playersSkippedBeginningOfCombat = new TaskCompletionSource<bool>();
+        TaskCompletionSource<bool> skipped = new TaskCompletionSource<bool>();
         float stepTimeout = 30f;
 
-        Server.OnPlayerPassedBeginningCombatStep += OnPlayerSkip;
+        Server.OnPlayerSkipClicked += OnPlayerSkip;
         Task timeout = Task.Delay(TimeSpan.FromSeconds(stepTimeout));
-        Task finished = await Task.WhenAny(playersSkippedBeginningOfCombat.Task, timeout);
-        Server.OnPlayerPassedBeginningCombatStep -= OnPlayerSkip;
+        Task finished = await Task.WhenAny(skipped.Task, timeout);
+        Server.OnPlayerSkipClicked -= OnPlayerSkip;
 
         if (finished == timeout)
-            Debug.Log($"<color='red'>Server:</color> Turn Controller - CombatPhase - Combat Beginning End: timeout...");
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Combat Beginning End: timeout");
         else
-            Debug.Log($"<color='red'>Server:</color> Turn Controller - CombatPhase End: players are ready");
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - End: players are ready");
 
         void OnPlayerSkip(int playerIndex)
         {
-            Debug.Log($"<color='red'>Server:</color> Turn Controller - CombatPhaseController - Player {playerIndex} skipped combat beginning");
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Player {playerIndex} skipped combat beginning");
 
-            if (playerIndex == 1)
-                _player1SkippedBeginning = true;
-            else if (playerIndex == 2)
-                _player2SkippedBeginning = true;
-            else
-                Debug.Log($">>>> Combat Phase: Player index {playerIndex} asked to skip the turn. But it is not expected this index");
+            if (playerIndex == 0)
+                _player1Skipped = true;
+            else if (playerIndex == 1)
+                _player2Skipped = true;
 
-            if (_player1SkippedBeginning && _player2SkippedBeginning)
-                playersSkippedBeginningOfCombat.SetResult(true);
+            if (_player1Skipped && _player2Skipped)
+                skipped.SetResult(true);
         }
 
+        Server.OnCombatStepEnded?.Invoke(CombatStep.BeginCombat);
+    }
+
+    async Task DeclareAttackers()
+    {
+        Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Declare Atackers step started.");
+
+        Server.MatchState.CurrentCombatStep = CombatStep.DeclareAttackers;
+        Server.OnCombatStepStarted?.Invoke(CombatStep.DeclareAttackers);
+
+        TaskCompletionSource<bool> skipped = new TaskCompletionSource<bool>();
+        float stepTimeout = 30f;
+
+        Server.OnPlayerSkipClicked += OnPlayerSkip;
+        Task timeout = Task.Delay(TimeSpan.FromSeconds(stepTimeout));
+        Task finished = await Task.WhenAny(skipped.Task, timeout);
+        Server.OnPlayerSkipClicked -= OnPlayerSkip;
+
+        if (finished == timeout)
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Combat Beginning End: timeout");
+        else
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - End: player ready to next step");
+
+        void OnPlayerSkip(int playerIndex)
+        {
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Player {playerIndex} skipped combat beginning");
+
+            if (playerIndex == Server.MatchState.CurrentPlayerIndex)
+                skipped.SetResult(true);
+        }
+
+        Server.OnCombatStepEnded?.Invoke(CombatStep.DeclareAttackers);
+    }
+
+    public void SetAttackers(List<Card> cards)
+    {
+        if (cards != null)
+        {
+            Attackers = cards;
+        }
     }
 }

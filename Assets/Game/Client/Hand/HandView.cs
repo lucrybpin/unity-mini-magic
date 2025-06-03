@@ -35,6 +35,7 @@ public class HandView : MonoBehaviour
     [field: SerializeField] public GameObject FocusBackground { get; private set; }
 
     public Action<CardView> OnCardOverCastRegion;
+    public Action<CardView> OnCardClicked;
 
     Vector2 _mouseWorldPos;
     RaycastHit2D[] _hits;
@@ -100,6 +101,7 @@ public class HandView : MonoBehaviour
             {
                 SelectedCard = CardUnderPointer;
                 _dragStartMousePos = _mouseWorldPos;
+                OnCardClicked?.Invoke(SelectedCard);
             }
             else
             {

@@ -23,9 +23,9 @@ public class MatchServerController
 
   public Action<GamePhase> OnPhaseStarted;
   public Action<GamePhase> OnPhaseEnded;
-  public Action<int> OnPlayerPassedUpkeep;
-  public Action<int> OnPlayerPassedMainPhase1;
-  public Action<int> OnPlayerPassedBeginningCombatStep;
+  public Action<CombatStep> OnCombatStepStarted;
+  public Action<CombatStep> OnCombatStepEnded;
+  public Action<int> OnPlayerSkipClicked;
 
   public Task<bool> PrepareNewMatch(List<CardData> CardListPlayer1, List<CardData> CardListPlayer2)
   {
@@ -83,7 +83,6 @@ public class MatchServerController
   {
     Debug.Log($"<color='red'>Server:</color> Starting Match");
 
-    
     await TurnController.StartTurn();
   }
 
@@ -142,6 +141,11 @@ public class MatchServerController
       deck.Add(tempDeck[randomIndex]);
       tempDeck.RemoveAt(randomIndex);
     }
+  }
+
+  public void SetAttackers(List<Card> cards)
+  {
+    TurnController.SetAttackers(cards);
   }
 
   public string SaveState()

@@ -42,13 +42,13 @@ public class HandController : MonoBehaviour
         _result.State = HandControllerState.Idle;
     }
 
-    public async Task<HandControllerResult> Execute()
+    public Task<HandControllerResult> Execute()
     {
         if (_result.State == HandControllerState.CastCardRequested)
             _result.State = HandControllerState.Paused;
 
         if (_result.State == HandControllerState.Paused)
-            return _result;
+            return Task.FromResult(_result);
 
         if (_result.State != HandControllerState.DrawingCard &&
             _result.State != HandControllerState.DraggingCard &&
@@ -125,7 +125,7 @@ public class HandController : MonoBehaviour
                 SelectedCard = null;
             }
         }
-        return _result;
+        return Task.FromResult(_result);
     }
 
     public async Task AddCard(CardView cardView)

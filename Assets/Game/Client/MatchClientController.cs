@@ -32,6 +32,7 @@ public class MatchClientController : MonoBehaviour
   [field: SerializeField] public CreaturesView CreaturesView { get; private set; }
   [field: SerializeField] public ResourcesView ResourcesView { get; private set; }
 
+  [field: SerializeField] public List<Card> Attackers { get; private set; }
 
   async void Start()
   {
@@ -40,12 +41,13 @@ public class MatchClientController : MonoBehaviour
     DrawEnabled             = false;
     Server.OnPhaseStarted   += OnPhaseStarted;
     Server.OnPhaseEnded     += OnPhaseEnded;
+    Server.OnCombatStepStarted += OnCombatStepStart;
+    Server.OnCombatStepEnded += OnCombatStepEnded;
     bool result             = await Server.PrepareNewMatch(CardListPlayer1, CardListPlayer2);
     DeckView.OnDeckClick    += OnDeckClick;
     HandView.OnCardOverCastRegion += OnCardOverCastRegion;
-    UIController.OnButtonPassUpkeepClick += OnButtonPassUpkeepClick;
-    UIController.OnButtonPassMainPhase1Click += OnButtonPassMainPhase1Click;
-    UIController.OnButtonPassCombatBeginningPhaseClick += OnButtonPassCombatBeginningPhaseClick;
+    HandView.OnCardClicked += OnCardClicked;
+    UIController.OnButtonSkipClicked += OnButtonSkipClick;
 
     // Draw Starting Hand
     HandView.Resume();
@@ -58,15 +60,17 @@ public class MatchClientController : MonoBehaviour
     Server.StartMatch();
   }
 
+
     void OnDestroy()
   {
     Server.OnPhaseStarted   -= OnPhaseStarted;
     Server.OnPhaseEnded     -= OnPhaseEnded;
+    Server.OnCombatStepStarted -= OnCombatStepStart;
+    Server.OnCombatStepEnded -= OnCombatStepEnded;
     DeckView.OnDeckClick    -= OnDeckClick;
     HandView.OnCardOverCastRegion -= OnCardOverCastRegion;
-    UIController.OnButtonPassUpkeepClick -= OnButtonPassUpkeepClick;
-    UIController.OnButtonPassMainPhase1Click -= OnButtonPassMainPhase1Click;
-    UIController.OnButtonPassCombatBeginningPhaseClick -= OnButtonPassCombatBeginningPhaseClick;
+    HandView.OnCardClicked -= OnCardClicked;
+    UIController.OnButtonSkipClicked -= OnButtonSkipClick;
   }
 
   // Server Events
@@ -77,13 +81,15 @@ public class MatchClientController : MonoBehaviour
     switch (phase)
     {
       case GamePhase.Beginning:
-        UIController.SetButtonPassUpkeepVisibility(true);
+        UIController.SetButtonSkipVisibility(true, "Pass Upkeep");
+        UIController.SetButtonSkipOpponentVisibility(true, "Pass Upkeep");
         break;
       case GamePhase.MainPhase1:
-        UIController.SetButtonPassMainPhase1Visibility(true);
+        UIController.SetButtonSkipVisibility(true, "End Main Phase 1");
+        UIController.SetButtonSkipOpponentVisibility(true, "End Main Phase 1");
         break;
       case GamePhase.Combat:
-        UIController.SetButonPassCombatBeginningPhase(true);
+        // Handled in OnCombatStepStart
         break;
       case GamePhase.MainPhase2:
         break;
@@ -99,17 +105,65 @@ public class MatchClientController : MonoBehaviour
     switch (phase)
     {
       case GamePhase.Beginning:
-        UIController.SetButtonPassUpkeepVisibility(false);
+        UIController.SetButtonSkipVisibility(false);
+        UIController.SetButtonSkipOpponentVisibility(false);
         break;
       case GamePhase.MainPhase1:
-        UIController.SetButtonPassMainPhase1Visibility(false);
+        UIController.SetButtonSkipVisibility(false);
+        UIController.SetButtonSkipOpponentVisibility(false);
         break;
       case GamePhase.Combat:
-        UIController.SetButonPassCombatBeginningPhase(false);
+        // Handled in OnCombatStepEnded
         break;
       case GamePhase.MainPhase2:
         break;
       case GamePhase.EndPhase:
+        break;
+    }
+  }
+
+  void OnCombatStepStart(CombatStep combatStep)
+  {
+    Debug.Log($"<color='green'>Client:</color> Combat Step {combatStep} started");
+
+    switch (combatStep)
+    {
+      case CombatStep.BeginCombat:
+        UIController.SetButtonSkipVisibility(true, "Skip Combat Beginning");
+        UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Beginning");
+        break;
+      case CombatStep.DeclareAttackers:
+        Attackers = new List<Card>();
+        UIController.SetButtonSkipVisibility(true, "Proceed");
+        // UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Beginning");
+        break;
+      case CombatStep.DeclareBlockers:
+        break;
+      case CombatStep.CombatDamage:
+        break;
+      case CombatStep.EndCombat:
+        break;
+    }
+  }
+
+  void OnCombatStepEnded(CombatStep combatStep)
+  {
+    Debug.Log($"<color='green'>Client:</color> Combat Step {combatStep} started");
+
+    switch (combatStep)
+    {
+      case CombatStep.BeginCombat:
+        UIController.SetButtonSkipVisibility(false);
+        UIController.SetButtonSkipOpponentVisibility(false);
+        break;
+      case CombatStep.DeclareAttackers:
+        Server.SetAttackers(Attackers);
+        break;
+      case CombatStep.DeclareBlockers:
+        break;
+      case CombatStep.CombatDamage:
+        break;
+      case CombatStep.EndCombat:
         break;
     }
   }
@@ -121,28 +175,21 @@ public class MatchClientController : MonoBehaviour
       _ = OnDeckClickTask();
   }
 
+  void OnCardClicked(CardView cardView)
+  {
+    _ = OnCardClickedTask(cardView);
+  }
+
   void OnCardOverCastRegion(CardView cardView)
   {
     if(cardView != null)
       _ = OnCardOverCastRegionTask(cardView);
   }
 
-  private void OnButtonPassUpkeepClick(int playerId)
+  void OnButtonSkipClick(int playerIndex)
   {
-    Debug.Log($"<color='green'>Client:</color> Button Pass Upkeep Clicked by Player {playerId}");
-    Server.OnPlayerPassedUpkeep(playerId);
-  }
-
-  private void OnButtonPassMainPhase1Click(int playerId)
-  {
-    Debug.Log($"<color='green'>Client:</color> Button Pass Main Phase 1 Clicked by Player {playerId}");
-    Server.OnPlayerPassedMainPhase1(playerId);
-  }
-
-  private void OnButtonPassCombatBeginningPhaseClick(int playerId)
-  {
-    Debug.Log($"<color='green'>Client:</color> Button Pass Combat Beginning Phase Clicked by Player {playerId}");
-    Server.OnPlayerPassedBeginningCombatStep(playerId);
+    Debug.Log($"<color='green'>Client:</color> Button End Phase/Step Clicked by Player {playerIndex}");
+    Server.OnPlayerSkipClicked(playerIndex);
   }
 
   // Support Methods
@@ -157,10 +204,22 @@ public class MatchClientController : MonoBehaviour
     ClientState       = MatchClientControllerState.Idle;
   }
 
+  async Task OnCardClickedTask(CardView cardView)
+  {
+    Debug.Log($"<color='green'>Client:</color> Card Clicked {cardView.Name} - {cardView.Card.InstanceID}");
+
+    if (Server.MatchState.CurrentPhase == GamePhase.Combat &&
+       Server.MatchState.CurrentCombatStep == CombatStep.DeclareAttackers)
+    {
+      Attackers.Add(cardView.Card);
+    }
+    await Task.Delay(1);
+  }
+
   async Task OnCardOverCastRegionTask(CardView cardView)
   {
     Debug.Log($"<color='green'>Client:</color> Trying to cast {cardView.Card.Name}");
-    
+
     ExecutionResult result = await Server.CastCard(PlayerIndex, cardView.Card);
     if (!result.Success)
     {
@@ -209,7 +268,7 @@ public class MatchClientController : MonoBehaviour
 
   async Task<bool> ProcessResource(CardView cardView)
   {
-    Debug.Log($"<color='green'>Client:</color> - Processing Resource");
+    Debug.Log($"<color='green'>Client:</color> Processing Resource");
 
     await HandView.RemoveCard(cardView);
     await ResourcesView.AddCard(cardView);

@@ -5,7 +5,7 @@ using UnityEngine;
 [Serializable]
 public class CardController
 {
-    [field: SerializeField] public MatchServerController Server { get; private set; } // possibly a circular reference
+    [field: SerializeField, NonSerialized] public MatchServerController Server { get; private set; } // possibly a circular reference
 
     public CardController(MatchServerController matchServerController)
     {

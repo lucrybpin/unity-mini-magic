@@ -2,9 +2,10 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
+[Serializable]
 public class MainPhase1Controller
 {
-    [field: SerializeField] public MatchServerController Server { get; private set; }
+    [field: SerializeField, NonSerialized] public MatchServerController Server { get; private set; }
 
     public MainPhase1Controller(MatchServerController server)
     {
@@ -13,25 +14,34 @@ public class MainPhase1Controller
 
     public async Task Execute()
     {
-        Debug.Log($"<color='red'>Server:</color> Turn Controller - MainPhase1Controller - Executing Main Phase ...");
+        Debug.Log($"<color='red'>Server:</color> Turn Controller - Main Phase 1 - Executing Main Phase ...");
 
-        TaskCompletionSource<bool> opponentPassedMainPhase1 = new TaskCompletionSource<bool>();
+        bool _player1Skipped = false;
+        bool _player2Skipped = false;
+        TaskCompletionSource<bool> skipped = new TaskCompletionSource<bool>();
         float mainPhaseTimeout = 120f;
 
-        Server.OnPlayerPassedMainPhase1 += OnPlayerSkip;
+        Server.OnPlayerSkipClicked += OnPlayerSkip;
         Task timeout = Task.Delay(TimeSpan.FromSeconds(mainPhaseTimeout));
-        Task finished = await Task.WhenAny(opponentPassedMainPhase1.Task, timeout);
-        Server.OnPlayerPassedMainPhase1 -= OnPlayerSkip;
+        Task finished = await Task.WhenAny(skipped.Task, timeout);
+        Server.OnPlayerSkipClicked -= OnPlayerSkip;
 
         if (finished == timeout)
-            Debug.Log($"<color='red'>Server:</color> Turn Controller - Main Phase 1 End: timeout...");
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Main Phase 1 - End: timeout...");
         else
-            Debug.Log($"<color='red'>Server:</color> Turn Controller - Main Phase 1 End: passed by opponent");
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Main Phase 1 - End: passed by opponent");
 
         void OnPlayerSkip(int playerIndex)
         {
-            if (playerIndex != Server.MatchState.CurrentPlayerIndex)
-                opponentPassedMainPhase1.SetResult(true);
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Main Phase 1 - Player {playerIndex} pressed skip");
+
+            if (playerIndex == 0)
+                _player1Skipped = true;
+            else if (playerIndex == 1)
+                _player2Skipped = true;
+
+            if (_player1Skipped && _player2Skipped)
+                skipped.SetResult(true);
         }
     }
 
