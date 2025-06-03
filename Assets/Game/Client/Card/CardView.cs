@@ -64,4 +64,18 @@ public class CardView : MonoBehaviour
         Card.Untap();
         await Task.Delay(TimeSpan.FromSeconds(0.12f));
     }
+
+    public void Hover(float offsetScale = 1f)
+    {
+        transform.DOKill();
+        transform.DOMove(OriginalPosition +  (offsetScale * transform.up), 0.125f);
+    }
+
+    public void ReturnCardToOriginalPosition()
+    {
+        transform.DOKill();
+        transform.DOScale(Vector3.one, .25f).SetEase(Ease.OutBack);
+        transform.DOMove(OriginalPosition, .25f);
+        transform.DORotateQuaternion(OriginalRotation, .25f);
+    }
 }

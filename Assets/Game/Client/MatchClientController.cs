@@ -37,14 +37,14 @@ public class MatchClientController : MonoBehaviour
   async void Start()
   {
     //Setup
-    ClientState             = MatchClientControllerState.Idle;
-    DrawEnabled             = false;
-    Server.OnPhaseStarted   += OnPhaseStarted;
-    Server.OnPhaseEnded     += OnPhaseEnded;
+    ClientState = MatchClientControllerState.Idle;
+    DrawEnabled = false;
+    Server.OnPhaseStarted += OnPhaseStarted;
+    Server.OnPhaseEnded += OnPhaseEnded;
     Server.OnCombatStepStarted += OnCombatStepStart;
     Server.OnCombatStepEnded += OnCombatStepEnded;
-    bool result             = await Server.PrepareNewMatch(CardListPlayer1, CardListPlayer2);
-    DeckView.OnDeckClick    += OnDeckClick;
+    bool result = await Server.PrepareNewMatch(CardListPlayer1, CardListPlayer2);
+    DeckView.OnDeckClick += OnDeckClick;
     HandView.OnCardOverCastRegion += OnCardOverCastRegion;
     HandView.OnCardClicked += OnCardClicked;
     UIController.OnButtonSkipClicked += OnButtonSkipClick;
@@ -61,13 +61,13 @@ public class MatchClientController : MonoBehaviour
   }
 
 
-    void OnDestroy()
+  void OnDestroy()
   {
-    Server.OnPhaseStarted   -= OnPhaseStarted;
-    Server.OnPhaseEnded     -= OnPhaseEnded;
+    Server.OnPhaseStarted -= OnPhaseStarted;
+    Server.OnPhaseEnded -= OnPhaseEnded;
     Server.OnCombatStepStarted -= OnCombatStepStart;
     Server.OnCombatStepEnded -= OnCombatStepEnded;
-    DeckView.OnDeckClick    -= OnDeckClick;
+    DeckView.OnDeckClick -= OnDeckClick;
     HandView.OnCardOverCastRegion -= OnCardOverCastRegion;
     HandView.OnCardClicked -= OnCardClicked;
     UIController.OnButtonSkipClicked -= OnButtonSkipClick;
@@ -182,7 +182,7 @@ public class MatchClientController : MonoBehaviour
 
   void OnCardOverCastRegion(CardView cardView)
   {
-    if(cardView != null)
+    if (cardView != null)
       _ = OnCardOverCastRegionTask(cardView);
   }
 
@@ -197,22 +197,30 @@ public class MatchClientController : MonoBehaviour
   {
     Debug.Log($"<color='green'>Client:</color> Deck Clicked");
 
-    ClientState       = MatchClientControllerState.DrawingCard;
-    Card card         = await Server.DrawCard(0);
-    CardView newCard  = CardViewCreator.CreateCardView(card, DeckView.transform.position, DeckView.transform.rotation);
+    ClientState = MatchClientControllerState.DrawingCard;
+    Card card = await Server.DrawCard(0);
+    CardView newCard = CardViewCreator.CreateCardView(card, DeckView.transform.position, DeckView.transform.rotation);
     await HandView.AddCard(newCard);
-    ClientState       = MatchClientControllerState.Idle;
+    ClientState = MatchClientControllerState.Idle;
   }
 
   async Task OnCardClickedTask(CardView cardView)
   {
     Debug.Log($"<color='green'>Client:</color> Card Clicked {cardView.Name} - {cardView.Card.InstanceID}");
 
-    if (Server.MatchState.CurrentPhase == GamePhase.Combat &&
-       Server.MatchState.CurrentCombatStep == CombatStep.DeclareAttackers)
+    bool isDeclareAttackersStep = Server.MatchState.CurrentPhase == GamePhase.Combat &&
+      Server.MatchState.CurrentCombatStep == CombatStep.DeclareAttackers;
+    if (isDeclareAttackersStep && !Attackers.Contains(cardView.Card))
     {
       Attackers.Add(cardView.Card);
+      cardView.Hover(0.34f);
     }
+    else if (isDeclareAttackersStep && Attackers.Contains(cardView.Card))
+    {
+      Attackers.Remove(cardView.Card);
+      cardView.ReturnCardToOriginalPosition();
+    }
+
     await Task.Delay(1);
   }
 
@@ -301,4 +309,5 @@ public class MatchClientController : MonoBehaviour
     Debug.Log($"<color='green'>Client:</color> - Processing Sorcery");
     return Task.FromResult(true);
   }
+
 }

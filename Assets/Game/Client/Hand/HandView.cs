@@ -82,7 +82,7 @@ public class HandView : MonoBehaviour
             State != HandViewState.Dragging)
         {
             if (HoveringCard != null)
-                ReturnCardToOriginalPosition(HoveringCard);
+                UnHover(HoveringCard);
             HoverCard(CardUnderPointer);
         }
         // UnHover
@@ -90,7 +90,7 @@ public class HandView : MonoBehaviour
             HoveringCard != null &&
             State == HandViewState.Idle)
         {
-            ReturnCardToOriginalPosition(HoveringCard);
+            UnHover(HoveringCard);
         }
 
         if (Input.GetMouseButtonDown(0))
@@ -218,17 +218,13 @@ public class HandView : MonoBehaviour
     void HoverCard(CardView card)
     {
         HoveringCard = card;
-        card.transform.DOKill();
-        card.transform.DOMove(card.OriginalPosition + card.transform.up, 0.125f);
+        card.Hover();
     }
 
-    void ReturnCardToOriginalPosition(CardView card)
+    void UnHover(CardView card)
     {
-        card.transform.DOKill();
-        card.transform.DOScale(Vector3.one, .25f).SetEase(Ease.OutBack);
-        card.transform.DOMove(card.OriginalPosition, .25f);
-        card.transform.DORotateQuaternion(card.OriginalRotation, .25f);
         HoveringCard = null;
+        card.ReturnCardToOriginalPosition();
     }
 
     void InspectCard(CardView cardView)

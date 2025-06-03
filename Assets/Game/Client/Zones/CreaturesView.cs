@@ -26,7 +26,7 @@ public class CreaturesView : MonoBehaviour
     {
         if (Creatures.Count == 0) return;
 
-        float cardSpacing = 0.12f;
+        float cardSpacing = 0.21f;
         if (Creatures.Count > 9)
             cardSpacing /= 2;
 
