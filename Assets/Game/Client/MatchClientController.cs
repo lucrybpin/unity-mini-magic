@@ -133,11 +133,15 @@ public class MatchClientController : MonoBehaviour
         UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Beginning");
         break;
       case CombatStep.DeclareAttackers:
-        Attackers = new List<Card>();
-        UIController.SetButtonSkipVisibility(true, "Proceed");
-        // UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Beginning");
+        if (Server.MatchState.CurrentPlayerIndex == PlayerIndex)
+        {
+          Attackers = new List<Card>();
+          UIController.SetButtonSkipVisibility(true, "Proceed");
+          // UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Beginning");
+        }
         break;
       case CombatStep.DeclareBlockers:
+        UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Blockers");
         break;
       case CombatStep.CombatDamage:
         break;
@@ -148,7 +152,7 @@ public class MatchClientController : MonoBehaviour
 
   void OnCombatStepEnded(CombatStep combatStep)
   {
-    Debug.Log($"<color='green'>Client:</color> Combat Step {combatStep} started");
+    Debug.Log($"<color='green'>Client:</color> Combat Step {combatStep} ended");
 
     switch (combatStep)
     {
@@ -157,9 +161,21 @@ public class MatchClientController : MonoBehaviour
         UIController.SetButtonSkipOpponentVisibility(false);
         break;
       case CombatStep.DeclareAttackers:
+        UIController.SetButtonSkipVisibility(false);
         Server.SetAttackers(Attackers);
+        // Tap Attacking Creatures
+        foreach (Card card in Attackers)
+        {
+          CardView creatureCard = CreaturesView.FindCardView(card); // If playerIndex != mine => use OpponentCreaturesView
+          if (creatureCard != null)
+            _ = creatureCard.Tap();
+          else
+            Debug.Log($"<color='green'>Client:</color> creature card {card.InstanceID} not found in CreaturesView");
+        }
         break;
       case CombatStep.DeclareBlockers:
+        UIController.SetButtonSkipVisibility(false);
+        UIController.SetButtonSkipOpponentVisibility(false);
         break;
       case CombatStep.CombatDamage:
         break;

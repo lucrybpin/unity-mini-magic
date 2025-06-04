@@ -26,7 +26,7 @@ public class CreaturesView : MonoBehaviour
     {
         if (Creatures.Count == 0) return;
 
-        float cardSpacing = 0.21f;
+        float cardSpacing = 0.215f;
         if (Creatures.Count > 9)
             cardSpacing /= 2;
 
@@ -47,6 +47,17 @@ public class CreaturesView : MonoBehaviour
             Creatures[i].transform.DORotateQuaternion(rotation, 0.12f);
         }
         await Task.Delay(TimeSpan.FromSeconds(0.12f));
+    }
+
+    public CardView FindCardView(Card card)
+    {
+        CardView cardFound = null;
+        foreach (CardView cardView in Creatures)
+        {
+            if (cardView.Card == card)
+                cardFound = cardView;
+        }
+        return cardFound;
     }
 
 }
