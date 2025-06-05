@@ -6,6 +6,7 @@ using System;
 
 public class CardView : MonoBehaviour
 {
+    [field: SerializeField] public int OwnerIndex { get; private set; }
     [field: SerializeField] public TMP_Text Name { get; private set; }
     [field: SerializeField] public TMP_Text Type { get; private set; }
     [field: SerializeField] public TMP_Text Description { get; private set; }
@@ -19,9 +20,10 @@ public class CardView : MonoBehaviour
     [field: SerializeField] public Quaternion OriginalRotation { get; private set; }
     [field: SerializeField] public Card Card { get; private set; }
 
-    public void Setup(Card card)
+    public void Setup(Card card, int playerIndex)
     {
         Card = card;
+        OwnerIndex = playerIndex;
         Name.text = Card.Name;
         Type.text = Card.Type.ToString();
         Description.text = Card.Description;

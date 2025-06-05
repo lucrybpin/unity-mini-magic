@@ -28,7 +28,7 @@ public class CombatPhaseController
     {
         Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Started...");
 
-        // Beginning of Combat -> Declare Atkers -> Declare Blckers -> First Strike Damage -> Damage -> End Of Combat
+        // Beginning of Combat -> Declare Atkers -> Declare Blckers -> Damage -> End Of Combat
 
         await BeginningOfCombat();
 
@@ -37,6 +37,8 @@ public class CombatPhaseController
         await DeclareBlockers();
 
         await CombatDamage();
+
+        await EndOfCombat();
 
     }
 
@@ -62,6 +64,8 @@ public class CombatPhaseController
         else
             Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - End: players are ready");
 
+        Server.OnCombatStepEnded?.Invoke(CombatStep.BeginCombat);
+
         void OnPlayerSkip(int playerIndex)
         {
             Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Player {playerIndex} skipped combat beginning");
@@ -74,8 +78,6 @@ public class CombatPhaseController
             if (_player1Skipped && _player2Skipped)
                 skipped.SetResult(true);
         }
-
-        Server.OnCombatStepEnded?.Invoke(CombatStep.BeginCombat);
     }
 
     async Task DeclareAttackers()
@@ -93,6 +95,8 @@ public class CombatPhaseController
         Task finished = await Task.WhenAny(skipped.Task, timeout);
         Server.OnPlayerSkipClicked -= OnPlayerSkip;
 
+        Server.OnCombatStepEnded?.Invoke(CombatStep.DeclareAttackers);
+
         if (finished == timeout)
             Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Combat Beginning End: timeout");
         else
@@ -105,8 +109,6 @@ public class CombatPhaseController
             if (playerIndex == Server.MatchState.CurrentPlayerIndex)
                 skipped.SetResult(true);
         }
-
-        Server.OnCombatStepEnded?.Invoke(CombatStep.DeclareAttackers);
     }
 
     public void SetAttackers(List<Card> cards)
@@ -132,6 +134,8 @@ public class CombatPhaseController
         Task finished = await Task.WhenAny(skipped.Task, timeout);
         Server.OnPlayerSkipClicked -= OnPlayerSkip;
 
+        Server.OnCombatStepEnded?.Invoke(CombatStep.DeclareBlockers);
+
         void OnPlayerSkip(int playerIndex)
         {
             Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Player {playerIndex} skipped blockers");
@@ -139,8 +143,6 @@ public class CombatPhaseController
             if (playerIndex != Server.MatchState.CurrentPlayerIndex)
                 skipped.SetResult(true);
         }
-
-        Server.OnCombatStepEnded?.Invoke(CombatStep.DeclareBlockers);
     }
 
     async Task CombatDamage()
@@ -166,5 +168,44 @@ public class CombatPhaseController
         }
 
         Server.OnCombatStepEnded?.Invoke(CombatStep.CombatDamage);
+    }
+
+    async Task EndOfCombat()
+    {
+        Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - End of Combat");
+
+        Server.MatchState.CurrentCombatStep = CombatStep.EndCombat;
+        Server.OnCombatStepStarted?.Invoke(CombatStep.EndCombat);
+        bool _player1Skipped = false;
+        bool _player2Skipped = false;
+
+        TaskCompletionSource<bool> skipped = new TaskCompletionSource<bool>();
+        float stepTimeout = 30f;
+
+        Server.OnPlayerSkipClicked += OnPlayerSkip;
+        Task timeout = Task.Delay(TimeSpan.FromSeconds(stepTimeout));
+        Task finished = await Task.WhenAny(skipped.Task, timeout);
+        Server.OnPlayerSkipClicked -= OnPlayerSkip;
+
+        if (finished == timeout)
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Combat End End: timeout");
+        else
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Combat End End: players are ready");
+
+        Server.MatchState.CurrentCombatStep = CombatStep.None;
+        Server.OnCombatStepEnded?.Invoke(CombatStep.EndCombat);
+
+        void OnPlayerSkip(int playerIndex)
+        {
+            Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Player {playerIndex} skipped combat end");
+
+            if (playerIndex == 0)
+                _player1Skipped = true;
+            else if (playerIndex == 1)
+                _player2Skipped = true;
+
+            if (_player1Skipped && _player2Skipped)
+                skipped.SetResult(true);
+        }
     }
 }

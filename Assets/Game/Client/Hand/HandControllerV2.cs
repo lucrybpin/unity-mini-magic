@@ -227,7 +227,7 @@ public class HandControllerV2
         InspectingCard.transform.name = "Inspecting card";
         InspectingCard.transform.localScale = Vector3.zero;
         InspectingCard.transform.DOScale(2.2f * Vector3.one, 0.25f).SetEase(Ease.OutBack);
-        InspectingCard.Setup(card.Card.Clone()); // I need a deep copy here, shallow copy will affect the original card
+        // InspectingCard.Setup(card.Card.Clone()); // I need a deep copy here, shallow copy will affect the original card
         InspectingCard.Card.IsInHand = false;
         FocusBackground.SetActive(true);
     }

@@ -39,6 +39,7 @@ public class MatchServerController
     MatchState.TurnNumber = 1;
     MatchState.CurrentPlayerIndex = 0;
     MatchState.CurrentPhase = GamePhase.Beginning;
+    MatchState.CurrentCombatStep = CombatStep.None;
 
     // Player 1 Deck
     PlayerState Player1State = new PlayerState();
@@ -62,6 +63,11 @@ public class MatchServerController
 
     MatchState.PlayerStates.Add(Player1State);
     MatchState.PlayerStates.Add(Player2State);
+
+    for (int i = 0; i < 7; i++)
+    {
+      DrawCard(1);
+    }
 
     Debug.Log($"<color='red'>Server:</color> Waiting for clients draw their hand");
 

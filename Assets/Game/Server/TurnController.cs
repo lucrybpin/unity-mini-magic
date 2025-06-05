@@ -10,6 +10,7 @@ public class TurnController
     [field: SerializeField] public BeginningPhaseController BeginningPhase { get; private set; }
     [field: SerializeField] public MainPhase1Controller MainPhase1 { get; private set; }
     [field: SerializeField] public CombatPhaseController CombatPhase { get; private set; }
+    [field: SerializeField] public MainPhase2Controller MainPhase2 { get; private set; }
 
     public TurnController(MatchServerController matchServerController)
     {
@@ -17,6 +18,7 @@ public class TurnController
         BeginningPhase = new BeginningPhaseController(Server);
         MainPhase1 = new MainPhase1Controller(Server);
         CombatPhase = new CombatPhaseController(Server);
+        MainPhase2 = new MainPhase2Controller(Server);
     }
 
     public async Task StartTurn()
@@ -29,6 +31,11 @@ public class TurnController
         await ExecutePhase(GamePhase.Beginning);
         await ExecutePhase(GamePhase.MainPhase1);
         await ExecutePhase(GamePhase.Combat);
+        await ExecutePhase(GamePhase.MainPhase2);
+        await ExecutePhase(GamePhase.EndPhase);
+
+        Server.MatchState.CurrentPlayerIndex = (Server.MatchState.CurrentPlayerIndex + 1) % Server.MatchState.PlayerStates.Count;
+        await StartTurn();
     }
 
     async Task ExecutePhase(GamePhase phase)
@@ -49,6 +56,7 @@ public class TurnController
                 await CombatPhase.Execute();
                 break;
             case GamePhase.MainPhase2:
+                await MainPhase2.Execute();
                 break;
             case GamePhase.EndPhase:
                 break;

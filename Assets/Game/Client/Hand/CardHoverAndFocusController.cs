@@ -107,7 +107,7 @@ public class CardHoverAndFocusController
         _focusInstance.transform.DOScale(2.2f * Vector3.one, 0.25f).SetEase(Ease.OutBack);
 
         CardView cardView = _focusInstance.GetComponent<CardView>();
-        cardView.Setup(card.Card);
+        cardView.Setup(card.Card, card.OwnerIndex);
 
         FocusBackground.SetActive(true);
     }

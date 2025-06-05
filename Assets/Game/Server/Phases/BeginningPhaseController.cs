@@ -13,7 +13,7 @@ public class BeginningPhaseController
 
     public async Task Execute()
     {
-        Debug.Log($"<color='red'>Server:</color> Turn Controller - Baginning Phase - Started...");
+        Debug.Log($"<color='red'>Server:</color> Turn Controller - Beginning Phase - Started...");
 
         // Untap -> Upkeep -> Draw
 

@@ -26,11 +26,15 @@ public class MatchClientController : MonoBehaviour
   [field: SerializeField] public CardViewCreator CardViewCreator { get; private set; }
   [field: SerializeField] public Transform DeckTransform { get; private set; }
 
-  [field: Header("View Elements")]
+  [field: Header("Player View Elements")]
   [field: SerializeField] public DeckView DeckView { get; private set; }
   [field: SerializeField] public HandView HandView { get; private set; }
   [field: SerializeField] public CreaturesView CreaturesView { get; private set; }
   [field: SerializeField] public ResourcesView ResourcesView { get; private set; }
+
+  [field: Header("Opponent View Elements")]
+  [field: SerializeField] public DeckView OpponentDeckView { get; private set; }
+  [field: SerializeField] public HandView OpponentHandView { get; private set; }
 
   [field: SerializeField] public List<Card> Attackers { get; private set; }
 
@@ -52,6 +56,7 @@ public class MatchClientController : MonoBehaviour
     // Draw Starting Hand
     HandView.Resume();
     await UIController.ShowMessage("Draw 7 Cards");
+    _ = OpponentDrawHand();
     DrawEnabled = true;
     await WaitForPlayer1DrawCards(7);
     DrawEnabled = false;
@@ -59,7 +64,6 @@ public class MatchClientController : MonoBehaviour
     // Start Game
     Server.StartMatch();
   }
-
 
   void OnDestroy()
   {
@@ -92,8 +96,12 @@ public class MatchClientController : MonoBehaviour
         // Handled in OnCombatStepStart
         break;
       case GamePhase.MainPhase2:
+        UIController.SetButtonSkipVisibility(true, "End Main Phase 2");
+        UIController.SetButtonSkipOpponentVisibility(true, "End Main Phase 2");
         break;
       case GamePhase.EndPhase:
+        UIController.SetButtonSkipVisibility(true, "Pass End");
+        UIController.SetButtonSkipOpponentVisibility(true, "Pass End");
         break;
     }
   }
@@ -116,8 +124,12 @@ public class MatchClientController : MonoBehaviour
         // Handled in OnCombatStepEnded
         break;
       case GamePhase.MainPhase2:
+        UIController.SetButtonSkipVisibility(false);
+        UIController.SetButtonSkipOpponentVisibility(false);
         break;
       case GamePhase.EndPhase:
+        UIController.SetButtonSkipVisibility(false);
+        UIController.SetButtonSkipOpponentVisibility(false);
         break;
     }
   }
@@ -146,6 +158,8 @@ public class MatchClientController : MonoBehaviour
       case CombatStep.CombatDamage:
         break;
       case CombatStep.EndCombat:
+        UIController.SetButtonSkipVisibility(true, "Skip Combat End");
+        UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat End");
         break;
     }
   }
@@ -180,6 +194,8 @@ public class MatchClientController : MonoBehaviour
       case CombatStep.CombatDamage:
         break;
       case CombatStep.EndCombat:
+        UIController.SetButtonSkipVisibility(false);
+        UIController.SetButtonSkipOpponentVisibility(false);
         break;
     }
   }
@@ -215,14 +231,14 @@ public class MatchClientController : MonoBehaviour
 
     ClientState = MatchClientControllerState.DrawingCard;
     Card card = await Server.DrawCard(0);
-    CardView newCard = CardViewCreator.CreateCardView(card, DeckView.transform.position, DeckView.transform.rotation);
+    CardView newCard = CardViewCreator.CreateCardView(card, DeckView.transform.position, DeckView.transform.rotation, PlayerIndex);
     await HandView.AddCard(newCard);
     ClientState = MatchClientControllerState.Idle;
   }
 
   async Task OnCardClickedTask(CardView cardView)
   {
-    Debug.Log($"<color='green'>Client:</color> Card Clicked {cardView.Name} - {cardView.Card.InstanceID}");
+    Debug.Log($"<color='green'>Client:</color> Card Clicked {cardView.Card.Name} - {cardView.Card.InstanceID}");
 
     bool isDeclareAttackersStep = Server.MatchState.CurrentPhase == GamePhase.Combat &&
       Server.MatchState.CurrentCombatStep == CombatStep.DeclareAttackers;
@@ -324,6 +340,18 @@ public class MatchClientController : MonoBehaviour
   {
     Debug.Log($"<color='green'>Client:</color> - Processing Sorcery");
     return Task.FromResult(true);
+  }
+
+  async Task OpponentDrawHand()
+  {
+    PlayerState opponentState = Server.MatchState.PlayerStates[1];
+    for (int i = 0; i < opponentState.Hand.Count; i++)
+    {
+      Card card = opponentState.Hand[i];
+      CardView newCard = CardViewCreator.CreateCardView(card, DeckView.transform.position, DeckView.transform.rotation, 1);
+      await OpponentHandView.AddCard(newCard);
+      await Task.Delay(TimeSpan.FromSeconds(0.2f));
+    }
   }
 
 }

@@ -45,8 +45,8 @@ public class CardSceneController : MonoBehaviour
         {
             int index = UnityEngine.Random.Range(0, CardData.Count);
             Card card = new Card(CardData[index]);
-            CardView newCard = CardViewCreator.CreateCardView(card, DeckTransform.transform.position, DeckTransform.rotation);
-            _ = HandController2.AddCard(newCard);
+            // CardView newCard = CardViewCreator.CreateCardView(card, DeckTransform.transform.position, DeckTransform.rotation);
+            // _ = HandController2.AddCard(newCard);
         }
 
         HandControllerResult handResult = HandController2.Execute();

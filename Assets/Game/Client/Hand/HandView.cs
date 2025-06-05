@@ -19,6 +19,7 @@ public class HandView : MonoBehaviour
 {
     [field: Header("Setup")]
     [field: SerializeField] public int MaxHandSize { get; private set; } = 10;
+    [field: SerializeField] public bool IsOpponent { get; private set; } = true;
 
     [field: Header("Core")]
     [field: SerializeField] public HandViewState State { get; private set; }
@@ -49,6 +50,9 @@ public class HandView : MonoBehaviour
 
     void Update()
     {
+        if (IsOpponent)
+            return;
+
         if (State == HandViewState.Paused)
             return;
 
@@ -120,13 +124,14 @@ public class HandView : MonoBehaviour
             // Drag Card
             if (SelectedCard != null &&
                 SelectedCard.Card.IsInHand &&
+                SelectedCard.OwnerIndex == 0 &&
                 Vector3.Distance(_mouseWorldPos, _dragStartMousePos) > 0.1f)
             {
-                Vector3 cardDragPosition        = _mouseWorldPos;
-                cardDragPosition                += new Vector3(0f, 0f, -2);
+                Vector3 cardDragPosition = _mouseWorldPos;
+                cardDragPosition += new Vector3(0f, 0f, -2);
                 SelectedCard.transform.position = Vector3.Lerp(SelectedCard.transform.position, cardDragPosition, 25f * Time.deltaTime);
                 SelectedCard.transform.rotation = Quaternion.RotateTowards(SelectedCard.transform.rotation, Quaternion.identity, 37 * Time.deltaTime);
-                State                           = HandViewState.Dragging;
+                State = HandViewState.Dragging;
             }
         }
 
@@ -142,6 +147,10 @@ public class HandView : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
+            // Cannot Inspect Opponen Hand
+            if (CardUnderPointer != null &&
+                CardUnderPointer.OwnerIndex != 0 && CardUnderPointer.Card.IsInHand)
+                return;
             // Inspect Card
             if (CardUnderPointer != null)
             {
@@ -231,11 +240,11 @@ public class HandView : MonoBehaviour
     {
         Vector3 focusPosition = new Vector3(0f, 2.5f, -3f);
 
-        InspectingCard = CardViewCreator.CreateCardView(cardView.Card, focusPosition, Quaternion.identity);
+        InspectingCard = CardViewCreator.CreateCardView(cardView.Card, focusPosition, Quaternion.identity, cardView.OwnerIndex);
         InspectingCard.transform.name = "Inspecting card";
         InspectingCard.transform.localScale = Vector3.zero;
         InspectingCard.transform.DOScale(2.2f * Vector3.one, 0.25f).SetEase(Ease.OutBack);
-        InspectingCard.Setup(cardView.Card.Clone()); // I need a deep copy here, shallow copy will affect the original card
+        InspectingCard.Setup(cardView.Card.Clone(), cardView.OwnerIndex); // I need a deep copy here, shallow copy will affect the original card
         InspectingCard.Card.IsInHand = false;
         FocusBackground.SetActive(true);
     }
