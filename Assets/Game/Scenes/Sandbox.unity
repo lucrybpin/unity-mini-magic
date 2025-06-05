@@ -2333,9 +2333,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
   <CardListPlayer2>k__BackingField:
   - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
-  - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
-  - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
-  - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
+  - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
+  - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
+  - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
@@ -5198,10 +5198,10 @@ MonoBehaviour:
         z: 0
       Rotation:
         value:
-          x: -0.70710665
+          x: 0.70710737
           y: 0
-          z: -0
-          w: 0.7071069
+          z: 0
+          w: 0.7071062
     - Position:
         x: 0
         y: 9
@@ -5216,10 +5216,10 @@ MonoBehaviour:
         z: 4
       Rotation:
         value:
-          x: -0.4999953
-          y: 0.50000054
-          z: -0.5000005
-          w: 0.5000037
+          x: 0.5000064
+          y: 0.5000006
+          z: 0.5000004
+          w: 0.49999273
     - Position:
         x: 9
         y: 10
@@ -5234,10 +5234,10 @@ MonoBehaviour:
         z: 0
       Rotation:
         value:
-          x: -0.70710665
+          x: 0.70710737
           y: 0
-          z: -0
-          w: 0.7071069
+          z: 0
+          w: 0.7071062
     m_MetaData:
     - Mode: 2
       Tension: 0.5
