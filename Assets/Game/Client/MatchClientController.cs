@@ -17,10 +17,8 @@ public class MatchClientController : MonoBehaviour
 
 
   [field: Header("Core Components and SubControllers")]
-  [field: SerializeField] public int PlayerIndex { get; private set; }
   [field: SerializeField] public MatchServerController Server { get; private set; }
   [field: SerializeField] public PlayerViewState ClientState { get; private set; }
-  [field: SerializeField] public bool DrawEnabled { get; private set; }
 
   [field: Header("External Controllers and Dependencies")]
   [field: SerializeField] public UIController UIController { get; private set; }
@@ -38,7 +36,6 @@ public class MatchClientController : MonoBehaviour
   {
     //Setup
     ClientState = PlayerViewState.Idle;
-    DrawEnabled = false;
 
     Server.OnPhaseStarted += OnPhaseStarted;
     Server.OnPhaseEnded += OnPhaseEnded;
@@ -56,9 +53,8 @@ public class MatchClientController : MonoBehaviour
     _ = OpponentDrawHand();
     PlayerView.ViewState = PlayerViewState.Idle;
     PlayerView.DrawEnabled = true;
-    DrawEnabled = true;
     await WaitForPlayer1DrawCards(7);
-    DrawEnabled = false;
+    PlayerView.DrawEnabled = false;
 
     // Start Game
     Server.StartMatch();
@@ -137,29 +133,38 @@ public class MatchClientController : MonoBehaviour
   {
     Debug.Log($"<color='green'>Client:</color> Combat Step {combatStep} started");
 
+    int playerIndex = Server.MatchState.CurrentPlayerIndex;
+
     switch (combatStep)
     {
       case CombatStep.BeginCombat:
         UIController.SetButtonSkipVisibility(true, "Skip Combat Beginning");
         UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Beginning");
         break;
+
       case CombatStep.DeclareAttackers:
-        if (Server.MatchState.CurrentPlayerIndex == PlayerIndex)
-        {
-          Attackers = new List<Card>();
+        Attackers = new List<Card>();
+        if (playerIndex == 0)
           UIController.SetButtonSkipVisibility(true, "Proceed");
-          // UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Beginning");
-        }
+        else
+          UIController.SetButtonSkipOpponentVisibility(true, "Proceed");
         break;
+
       case CombatStep.DeclareBlockers:
-        UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Blockers");
+        if(playerIndex == 0)
+          UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Blockers");
+        else
+          UIController.SetButtonSkipVisibility(true, "Skip Combat Blockers");
         break;
+
       case CombatStep.CombatDamage:
         break;
+
       case CombatStep.EndCombat:
         UIController.SetButtonSkipVisibility(true, "Skip Combat End");
         UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat End");
         break;
+
     }
   }
 
