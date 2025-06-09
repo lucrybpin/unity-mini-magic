@@ -240,7 +240,7 @@ public class HandView : MonoBehaviour
     {
         Vector3 focusPosition = new Vector3(0f, 2.5f, -3f);
 
-        InspectingCard = CardViewCreator.CreateCardView(cardView.Card, focusPosition, Quaternion.identity, cardView.OwnerIndex);
+        InspectingCard = CardViewCreator.CreateCardView(cardView.Card, cardView.OwnerIndex, focusPosition, Quaternion.identity);
         InspectingCard.transform.name = "Inspecting card";
         InspectingCard.transform.localScale = Vector3.zero;
         InspectingCard.transform.DOScale(2.2f * Vector3.one, 0.25f).SetEase(Ease.OutBack);

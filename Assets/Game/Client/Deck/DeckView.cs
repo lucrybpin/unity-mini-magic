@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class DeckView : MonoBehaviour
 {
-    public event Action OnDeckClick;
+    public event Action OnDeckClicked;
 
     void OnMouseDown()
     {
-        OnDeckClick?.Invoke();
+        OnDeckClicked?.Invoke();
     }
 }
