@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 
 public class PlayerView : MonoBehaviour
 {
     [field: Header("Setup")]
     [field: SerializeField] public int PlayerIndex { get; private set; }
+    [field: SerializeField] public AIController AIController { get; private set; }
 
     [field: SerializeField] public MatchClientController ClientController { get; private set; }
 
@@ -40,6 +39,14 @@ public class PlayerView : MonoBehaviour
         HandView.OnCardClicked -= OnCardClick;
     }
 
+    void SetAI(AIController aiController)
+    {
+        AIController = aiController;
+        DeckView.OnDeckClicked -= OnDeckClick;
+        HandView.OnCardOverCastRegion -= OnCardCastRequest;
+        HandView.OnCardClicked -= OnCardClick;
+    }
+
     // Player Events
 
     void OnDeckClick()
@@ -60,10 +67,18 @@ public class PlayerView : MonoBehaviour
             OnCardClicked?.Invoke(cardView, PlayerIndex);
     }
 
+    void OnCardCasted(Card card)
+    {
+
+    }
+
     // Methods
 
     public async Task DrawCard(CardView newCard)
     {
+        while (ViewState == PlayerViewState.DrawingCard)
+            await Task.Delay(500);
+
         ViewState = PlayerViewState.DrawingCard;
         newCard.transform.position = DeckView.transform.position;
         newCard.transform.rotation = DeckView.transform.rotation;

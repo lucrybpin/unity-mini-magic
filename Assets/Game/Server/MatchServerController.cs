@@ -19,6 +19,7 @@ public class MatchServerController
   [field: SerializeField] public TurnController TurnController { get; private set; }
   [field: SerializeField] public CardController CardController { get; private set; }
   [field: SerializeField] public ZonesController ZonesController { get; private set; }
+  [field: SerializeField] public AIController AIController { get; private set; }
   // [field: SerializeField] public CombatController CombatController { get; private set; }
 
   public Action<GamePhase> OnPhaseStarted;
@@ -27,6 +28,9 @@ public class MatchServerController
   public Action<CombatStep> OnCombatStepEnded;
   public Action<int> OnPlayerSkipClicked;
 
+  public Action<int, Card> OnPlayerDrawCard;
+  public Action<int, Card> OnPlayerCastCard;
+
   public Task<bool> PrepareNewMatch(List<CardData> CardListPlayer1, List<CardData> CardListPlayer2)
   {
     Debug.Log($"<color='red'>Server:</color> Preparing New Match");
@@ -34,11 +38,12 @@ public class MatchServerController
     TurnController = new TurnController(this);
     CardController = new CardController(this);
     ZonesController = new ZonesController(this);
+    AIController = new AIController(this);
 
     MatchState = new MatchState();
     MatchState.TurnNumber = 1;
-    MatchState.CurrentPlayerIndex = 0;
-    MatchState.CurrentPhase = GamePhase.Beginning;
+    MatchState.CurrentPlayerIndex = 1;//UnityEngine.Random.Range(0, 2);
+    MatchState.CurrentPhase = GamePhase.Preparing;
     MatchState.CurrentCombatStep = CombatStep.None;
 
     // Player 1 Deck
@@ -88,7 +93,6 @@ public class MatchServerController
   public async void StartMatch()
   {
     Debug.Log($"<color='red'>Server:</color> Starting Match");
-
     await TurnController.StartTurn();
   }
 
@@ -106,6 +110,8 @@ public class MatchServerController
     playerState.Deck.RemoveAt(0);
     playerState.Hand.Add(drawnCard);
     drawnCard.IsInHand = true;
+
+    OnPlayerDrawCard?.Invoke(playerIndex, drawnCard);
 
     return Task.FromResult(drawnCard);
   }
@@ -128,6 +134,9 @@ public class MatchServerController
     await CardController.ProcessCardPlay(playerIndex, card);
 
     Debug.Log($"<color='red'>Server:</color> {result.Message}");
+
+    OnPlayerCastCard?.Invoke(playerIndex, card);
+
     return new ExecutionResult() { Success = true, Message = "Success" };
   }
 

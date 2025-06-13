@@ -8,6 +8,7 @@ public class CardViewCreator : MonoBehaviour
     public CardView CreateCardView(Card card, int playerIndex = -1)
     {
         CardView cardView               = Instantiate(CardViewPrefab);
+        cardView.transform.position = 21 * Vector3.up;
         cardView.transform.localScale   = Vector3.one;
         cardView.transform.DOScale(Vector3.one, 0.25f);
         cardView.Setup(card, playerIndex);

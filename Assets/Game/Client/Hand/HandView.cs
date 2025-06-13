@@ -56,11 +56,11 @@ public class HandView : MonoBehaviour
         if (State == HandViewState.Paused)
             return;
 
-        _mouseWorldPos      = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        _hits               = Physics2D.RaycastAll(_mouseWorldPos, Vector2.zero); // RaycastNonAlloc is deprecated. If I really need performance, I can try GetRayIntersectionNonAlloc later here
+        _mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        _hits = Physics2D.RaycastAll(_mouseWorldPos, Vector2.zero); // RaycastNonAlloc is deprecated. If I really need performance, I can try GetRayIntersectionNonAlloc later here
 
-        CardUnderPointer    = null;
-        CastRegion          = null;
+        CardUnderPointer = null;
+        CastRegion = null;
         foreach (RaycastHit2D hit in _hits)
         {
             // Cursor Over Card
@@ -255,6 +255,15 @@ public class HandView : MonoBehaviour
         FocusBackground.SetActive(false);
         InspectingCard = null;
         State = HandViewState.Idle;
+    }
+
+    public CardView GetCardView(Card card)
+    {
+        foreach (CardView cardView in Cards)
+            if (cardView.Card.InstanceID == card.InstanceID)
+                return cardView;
+
+        return null;
     }
 
 }

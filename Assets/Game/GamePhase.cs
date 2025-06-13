@@ -1,5 +1,6 @@
 public enum GamePhase
 {
+    Preparing,
     Beginning,
     MainPhase1,
     Combat,

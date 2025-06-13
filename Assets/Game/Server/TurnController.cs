@@ -29,6 +29,7 @@ public class TurnController
         Server.MatchState.PlayerStates[currentPlayerIndex].ResourcesPlayedThisTurn = 0;
 
         await ExecutePhase(GamePhase.Beginning);
+
         await ExecutePhase(GamePhase.MainPhase1);
         await ExecutePhase(GamePhase.Combat);
         await ExecutePhase(GamePhase.MainPhase2);

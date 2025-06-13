@@ -41,6 +41,8 @@ public class MatchClientController : MonoBehaviour
     Server.OnPhaseEnded += OnPhaseEnded;
     Server.OnCombatStepStarted += OnCombatStepStart;
     Server.OnCombatStepEnded += OnCombatStepEnded;
+    Server.OnPlayerDrawCard += OnPlayerDrawCard;
+    Server.OnPlayerCastCard += OnPlayerCastCard;
     bool result = await Server.PrepareNewMatch(CardListPlayer1, CardListPlayer2);
     PlayerView.OnDeckClicked += OnDeckClick;
     PlayerView.OnCardCastRequested += OnCardCastRequested;
@@ -50,7 +52,7 @@ public class MatchClientController : MonoBehaviour
     // Draw Starting Hand
     PlayerView.ResumeHand();
     await UIController.ShowMessage("Draw 7 Cards");
-    _ = OpponentDrawHand();
+    // _ = OpponentDrawHand();
     PlayerView.ViewState = PlayerViewState.Idle;
     PlayerView.DrawEnabled = true;
     await WaitForPlayer1DrawCards(7);
@@ -66,6 +68,8 @@ public class MatchClientController : MonoBehaviour
     Server.OnPhaseEnded -= OnPhaseEnded;
     Server.OnCombatStepStarted -= OnCombatStepStart;
     Server.OnCombatStepEnded -= OnCombatStepEnded;
+    Server.OnPlayerDrawCard -= OnPlayerDrawCard;
+    Server.OnPlayerCastCard -= OnPlayerCastCard;
 
     PlayerView.OnDeckClicked -= OnDeckClick;
     PlayerView.OnCardCastRequested -= OnCardCastRequested;
@@ -73,6 +77,56 @@ public class MatchClientController : MonoBehaviour
   }
 
   // Server Events
+  void OnPlayerDrawCard(int playerIndex, Card card)
+  {
+    Debug.Log($"<color='green'>Client:</color> Player {playerIndex} drew card {card.Name}");
+
+    PlayerView playerView = (playerIndex == 0) ? PlayerView : OpponentView;
+    CardView newCard      = CardViewCreator.CreateCardView(card, playerIndex);
+    _ = playerView.DrawCard(newCard); ;
+  }
+
+  void OnPlayerCastCard(int playerIndex, Card card)
+  {
+    Debug.Log($"<color='green'>Client:</color> Player {playerIndex} casted card {card.Name}");
+
+    OnPlayerCastCardAsync(playerIndex, card);
+  }
+
+  async void OnPlayerCastCardAsync(int playerIndex, Card card)
+  {
+    PlayerView playerView = (playerIndex == 0) ? PlayerView : OpponentView;
+
+    CardView cardView = playerView.HandView.GetCardView(card);
+
+    switch (cardView.Card.Type)
+    {
+      case CardType.Resource:
+        await ProcessResource(cardView, playerView);
+        break;
+
+      case CardType.Creature:
+        await ProcessCreature(cardView, playerView);
+        break;
+
+      case CardType.Enchantment:
+        await ProcessEnchantment(cardView, playerView);
+        break;
+
+      case CardType.Sorcery:
+        await ProcessSorcery(cardView, playerView);
+        break;
+
+      case CardType.Instant:
+        await ProcessInstant(cardView, playerView);
+        break;
+    }
+
+    playerView.ResolveCast(true);
+
+    Debug.Log($"<color='green'>Client:</color> card casted successfully");
+  }
+
   void OnPhaseStarted(GamePhase phase)
   {
     Debug.Log($"<color='green'>Client:</color> Phase {phase} started");
@@ -81,7 +135,7 @@ public class MatchClientController : MonoBehaviour
     {
       case GamePhase.Beginning:
         UIController.SetButtonSkipVisibility(true, "Pass Upkeep");
-        UIController.SetButtonSkipOpponentVisibility(true, "Pass Upkeep");
+        // UIController.SetButtonSkipOpponentVisibility(true, "Pass Upkeep");
         break;
       case GamePhase.MainPhase1:
         UIController.SetButtonSkipVisibility(true, "End Main Phase 1");
@@ -203,7 +257,13 @@ public class MatchClientController : MonoBehaviour
   // Client Events
   void OnDeckClick(int playerIndex)
   {
-    _ = OnDeckClickTask(playerIndex);
+    Debug.Log($"<color='green'>Client:</color> Deck Clicked");
+
+    if (Server.MatchState.CurrentPlayerIndex != playerIndex && Server.MatchState.CurrentPhase != GamePhase.Preparing)
+      return;
+
+    PlayerView playerView = (playerIndex == 0) ? PlayerView : OpponentView;
+    Server.DrawCard(playerIndex);
   }
 
   void OnCardClicked(CardView cardView, int playerIndex)
@@ -224,18 +284,6 @@ public class MatchClientController : MonoBehaviour
   }
 
   // Support Methods
-  async Task OnDeckClickTask(int playerIndex)
-  {
-    Debug.Log($"<color='green'>Client:</color> Deck Clicked");
-
-    if (Server.MatchState.CurrentPlayerIndex != playerIndex)
-      return;
-
-    PlayerView playerView = (playerIndex == 0) ? PlayerView : OpponentView;
-    Card card             = await Server.DrawCard(playerIndex);
-    CardView newCard      = CardViewCreator.CreateCardView(card, playerIndex);
-    await playerView.DrawCard(newCard); ;
-  }
 
   async Task OnCardClickedTask(CardView cardView, int playerIndex)
   {

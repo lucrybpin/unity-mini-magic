@@ -1985,7 +1985,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
-  <PlayerIndex>k__BackingField: 0
   <Server>k__BackingField:
     <MatchState>k__BackingField:
       CurrentPlayerIndex: 0
@@ -1998,7 +1997,6 @@ MonoBehaviour:
       <CombatPhase>k__BackingField:
         <Attackers>k__BackingField: []
   <ClientState>k__BackingField: 0
-  <DrawEnabled>k__BackingField: 0
   <UIController>k__BackingField: {fileID: 107698473}
   <CardViewCreator>k__BackingField: {fileID: 1784210181}
   <PlayerView>k__BackingField: {fileID: 1575111851}
@@ -4552,7 +4550,7 @@ MonoBehaviour:
     m_Knots:
     - Position:
         x: -9
-        y: 10
+        y: 11.5
         z: -1
       TangentIn:
         x: 0
@@ -4570,7 +4568,7 @@ MonoBehaviour:
           w: 0.7071062
     - Position:
         x: 0
-        y: 9
+        y: 10.5
         z: -1
       TangentIn:
         x: 0
@@ -4582,13 +4580,13 @@ MonoBehaviour:
         z: 4
       Rotation:
         value:
-          x: 0.5000064
+          x: 0.5000072
           y: 0.5000006
           z: 0.5000004
-          w: 0.49999273
+          w: 0.4999919
     - Position:
         x: 9
-        y: 10
+        y: 11.5
         z: -1
       TangentIn:
         x: 0

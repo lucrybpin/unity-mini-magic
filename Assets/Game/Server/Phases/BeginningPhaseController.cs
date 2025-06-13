@@ -52,7 +52,7 @@ public class BeginningPhaseController
         bool _player2Skipped = false;
 
         TaskCompletionSource<bool> opponentPassedUpkeep = new TaskCompletionSource<bool>();
-        float upkeepTimeout = 10f;
+        float upkeepTimeout = 30f;
 
         Server.OnPlayerSkipClicked += OnPlayerSkip;
         Task timeout = Task.Delay(TimeSpan.FromSeconds(upkeepTimeout));
