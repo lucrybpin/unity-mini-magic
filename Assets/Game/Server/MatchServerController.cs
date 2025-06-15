@@ -20,7 +20,6 @@ public class MatchServerController
   [field: SerializeField] public CardController CardController { get; private set; }
   [field: SerializeField] public ZonesController ZonesController { get; private set; }
   [field: SerializeField] public AIController AIController { get; private set; }
-  // [field: SerializeField] public CombatController CombatController { get; private set; }
 
   public Action<GamePhase> OnPhaseStarted;
   public Action<GamePhase> OnPhaseEnded;
@@ -42,7 +41,7 @@ public class MatchServerController
 
     MatchState = new MatchState();
     MatchState.TurnNumber = 1;
-    MatchState.CurrentPlayerIndex = 1;//UnityEngine.Random.Range(0, 2);
+    MatchState.CurrentPlayerIndex = 0;//UnityEngine.Random.Range(0, 2);
     MatchState.CurrentPhase = GamePhase.Preparing;
     MatchState.CurrentCombatStep = CombatStep.None;
 

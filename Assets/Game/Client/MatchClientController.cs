@@ -31,6 +31,8 @@ public class MatchClientController : MonoBehaviour
   [field: SerializeField] public PlayerView OpponentView { get; private set; }
 
   [field: SerializeField] public List<Card> Attackers { get; private set; }
+  [field: SerializeField] public List<BlockData> Blockers { get; private set; }
+  [field: SerializeField] public CardView CurrentBlockingCreature { get; private  set; }
 
   async void Start()
   {
@@ -139,18 +141,18 @@ public class MatchClientController : MonoBehaviour
         break;
       case GamePhase.MainPhase1:
         UIController.SetButtonSkipVisibility(true, "End Main Phase 1");
-        UIController.SetButtonSkipOpponentVisibility(true, "End Main Phase 1");
+        // UIController.SetButtonSkipOpponentVisibility(true, "End Main Phase 1");
         break;
       case GamePhase.Combat:
         // Handled in OnCombatStepStart
         break;
       case GamePhase.MainPhase2:
         UIController.SetButtonSkipVisibility(true, "End Main Phase 2");
-        UIController.SetButtonSkipOpponentVisibility(true, "End Main Phase 2");
+        // UIController.SetButtonSkipOpponentVisibility(true, "End Main Phase 2");
         break;
       case GamePhase.EndPhase:
         UIController.SetButtonSkipVisibility(true, "Pass End");
-        UIController.SetButtonSkipOpponentVisibility(true, "Pass End");
+        // UIController.SetButtonSkipOpponentVisibility(true, "Pass End");
         break;
     }
   }
@@ -193,21 +195,17 @@ public class MatchClientController : MonoBehaviour
     {
       case CombatStep.BeginCombat:
         UIController.SetButtonSkipVisibility(true, "Skip Combat Beginning");
-        UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Beginning");
         break;
 
       case CombatStep.DeclareAttackers:
         Attackers = new List<Card>();
         if (playerIndex == 0)
           UIController.SetButtonSkipVisibility(true, "Proceed");
-        else
-          UIController.SetButtonSkipOpponentVisibility(true, "Proceed");
         break;
 
       case CombatStep.DeclareBlockers:
-        if(playerIndex == 0)
-          UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat Blockers");
-        else
+        Blockers = new List<BlockData>();
+        if(playerIndex == 1)
           UIController.SetButtonSkipVisibility(true, "Skip Combat Blockers");
         break;
 
@@ -216,7 +214,7 @@ public class MatchClientController : MonoBehaviour
 
       case CombatStep.EndCombat:
         UIController.SetButtonSkipVisibility(true, "Skip Combat End");
-        UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat End");
+        // UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat End");
         break;
 
     }
@@ -232,18 +230,20 @@ public class MatchClientController : MonoBehaviour
     {
       case CombatStep.BeginCombat:
         UIController.SetButtonSkipVisibility(false);
-        UIController.SetButtonSkipOpponentVisibility(false);
+        // UIController.SetButtonSkipOpponentVisibility(false);
         break;
       case CombatStep.DeclareAttackers:
         UIController.SetButtonSkipVisibility(false);
-        Server.SetAttackers(Attackers);
+        if(playerIndex == 0)
+          Server.SetAttackers(Attackers);
         // Tap Attacking Creatures
         PlayerView attackingPlayer = playerIndex == 0 ? PlayerView : OpponentView;
-        attackingPlayer.TapAttackers(Attackers);
+        List<Card> attackers = Server.TurnController.GetAttackers();
+        attackingPlayer.TapAttackers(attackers);
         break;
       case CombatStep.DeclareBlockers:
         UIController.SetButtonSkipVisibility(false);
-        UIController.SetButtonSkipOpponentVisibility(false);
+        // UIController.SetButtonSkipOpponentVisibility(false);
         break;
       case CombatStep.CombatDamage:
         break;
@@ -290,10 +290,10 @@ public class MatchClientController : MonoBehaviour
     Debug.Log($"<color='green'>Client:</color> Card Clicked {cardView.Card.Name} - {cardView.Card.InstanceID}");
 
     // Ellect Attackers during Declare Attackers Step
-    bool isAttackingPlayerCall = playerIndex == Server.MatchState.CurrentPlayerIndex;
+    bool isMyTurn = playerIndex == Server.MatchState.CurrentPlayerIndex;
     bool isDeclareAttackersStep = Server.MatchState.CurrentPhase == GamePhase.Combat &&
       Server.MatchState.CurrentCombatStep == CombatStep.DeclareAttackers;
-    if (isAttackingPlayerCall && isDeclareAttackersStep && !Attackers.Contains(cardView.Card))
+    if (isMyTurn && isDeclareAttackersStep && !Attackers.Contains(cardView.Card))
     {
       Attackers.Add(cardView.Card);
       cardView.Hover(0.34f);
@@ -302,6 +302,57 @@ public class MatchClientController : MonoBehaviour
     {
       Attackers.Remove(cardView.Card);
       cardView.ReturnCardToOriginalPosition();
+    }
+
+    // Ellect Blockers
+    bool isDeclareBlockersStep = Server.MatchState.CurrentPhase == GamePhase.Combat &&
+      Server.MatchState.CurrentCombatStep == CombatStep.DeclareBlockers;
+    if (!isMyTurn && isDeclareBlockersStep)
+    {
+      // Clicked in Blocker
+      if (Server.MatchState.PlayerStates[playerIndex].CreatureZone.Contains(cardView.Card) &&
+        !cardView.Card.IsTapped)
+      {
+        BlockData foundBlockData = Blockers.Find(x => x.Blockers.Contains(cardView.Card));
+        if (foundBlockData != null)
+        {
+          foundBlockData.Blockers.Remove(cardView.Card);
+          if (foundBlockData.Blockers.Count == 0)
+            Blockers.Remove(foundBlockData);
+          CurrentBlockingCreature = null;
+        }
+        else
+        {
+          CurrentBlockingCreature = cardView;
+        }
+        // cardView.Hover(0.34f);
+      }
+      // Clicked in Attacker
+      int attackingPlayerIndex = Server.MatchState.CurrentPlayerIndex;
+      if (Server.MatchState.PlayerStates[attackingPlayerIndex].CreatureZone.Contains(cardView.Card))
+      {
+        if (CurrentBlockingCreature != null)
+        {
+          BlockData foundBlockData = Blockers.Find(x => x.Attacker == cardView.Card);
+
+          if (foundBlockData != null)
+          {
+            if (!foundBlockData.Blockers.Contains(CurrentBlockingCreature.Card))
+            {
+              foundBlockData.Blockers.Add(CurrentBlockingCreature.Card);
+            }
+          }
+          else
+          {
+            List<Card> blockers = new List<Card>();
+            blockers.Add(CurrentBlockingCreature.Card);
+            BlockData blockData = new BlockData(blockers, cardView.Card);
+            Blockers.Add(blockData);
+            CurrentBlockingCreature = null;
+          }
+        }
+      }
+
     }
 
     await Task.Delay(1);

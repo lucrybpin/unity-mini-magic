@@ -29,7 +29,6 @@ public class TurnController
         Server.MatchState.PlayerStates[currentPlayerIndex].ResourcesPlayedThisTurn = 0;
 
         await ExecutePhase(GamePhase.Beginning);
-
         await ExecutePhase(GamePhase.MainPhase1);
         await ExecutePhase(GamePhase.Combat);
         await ExecutePhase(GamePhase.MainPhase2);
@@ -44,6 +43,9 @@ public class TurnController
         Server.OnPhaseEnded?.Invoke(Server.MatchState.CurrentPhase);
         Server.MatchState.CurrentPhase = phase;
         Server.OnPhaseStarted?.Invoke(phase);
+
+        Debug.Log($"------- ------- ------- ------- ------- ------ -------");
+        
 
         switch (phase)
         {
@@ -67,5 +69,10 @@ public class TurnController
     public void SetAttackers(List<Card> cards)
     {
         CombatPhase.SetAttackers(cards);
+    }
+
+    public List<Card> GetAttackers()
+    {
+        return CombatPhase.Attackers;
     }
 }

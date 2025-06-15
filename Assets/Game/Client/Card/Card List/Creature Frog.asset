@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc09e39a25b19b0469b7b6ee636fd043, type: 3}
-  m_Name: Basic Creature
+  m_Name: Creature Frog
   m_EditorClassIdentifier: 
-  <Name>k__BackingField: Basic Creature
+  <Name>k__BackingField: Frog
   <Type>k__BackingField: 1
-  <Description>k__BackingField: Basic Creature.
-  <Cost>k__BackingField: 1
-  <Sprite>k__BackingField: {fileID: 21300000, guid: bdad543230c0c7743bb0458347ae9d9d, type: 3}
-  <Attack>k__BackingField: 2
+  <Description>k__BackingField: A Simple Frog
+  <Cost>k__BackingField: 0
+  <Sprite>k__BackingField: {fileID: 21300000, guid: c6e5820170b48fb4fb9beb4b0a400fc6, type: 3}
+  <Attack>k__BackingField: 1
   <Defense>k__BackingField: 2
   <Effects>k__BackingField: []

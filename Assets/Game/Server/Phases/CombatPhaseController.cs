@@ -3,10 +3,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public struct BlockData
+[Serializable]
+public class BlockData
 {
     public List<Card> Blockers;
     public Card Attacker;
+
+    public BlockData(List<Card> blockers, Card attacker)
+    {
+        Blockers = blockers;
+        Attacker = attacker;
+    }
 }
 
 [Serializable]
@@ -127,7 +134,7 @@ public class CombatPhaseController
         Server.OnCombatStepStarted?.Invoke(CombatStep.DeclareBlockers);
 
         TaskCompletionSource<bool> skipped = new TaskCompletionSource<bool>();
-        float stepTimeout = 30f;
+        float stepTimeout = 230f;
 
         Server.OnPlayerSkipClicked += OnPlayerSkip;
         Task timeout = Task.Delay(TimeSpan.FromSeconds(stepTimeout));
@@ -156,7 +163,7 @@ public class CombatPhaseController
         {
             BlockData blockData = Blockers.Find(x => x.Attacker == attacker);
 
-            if (blockData.Blockers != null && blockData.Blockers.Count > 0)
+            if (blockData != null && blockData.Blockers != null && blockData.Blockers.Count > 0)
             {
                 // TODO: Implement Blocking
             }

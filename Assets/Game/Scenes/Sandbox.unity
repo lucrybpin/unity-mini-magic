@@ -1967,12 +1967,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
   - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
   - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
-  - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
-  - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
-  - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
-  - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
-  - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
-  - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
+  - {fileID: 11400000, guid: 7c0595a5370876f4e9f66f7ca1a4e30f, type: 2}
+  - {fileID: 11400000, guid: 7c0595a5370876f4e9f66f7ca1a4e30f, type: 2}
+  - {fileID: 11400000, guid: 7c0595a5370876f4e9f66f7ca1a4e30f, type: 2}
+  - {fileID: 11400000, guid: 8097234d0208d2a42a3e881fe2ab1385, type: 2}
+  - {fileID: 11400000, guid: 8097234d0208d2a42a3e881fe2ab1385, type: 2}
+  - {fileID: 11400000, guid: 8097234d0208d2a42a3e881fe2ab1385, type: 2}
   - {fileID: 11400000, guid: ba391fdc17a1e014b993ddecb29249b3, type: 2}
   <CardListPlayer2>k__BackingField:
   - {fileID: 11400000, guid: e4f08bdbdaf36a64685cafe3ca4e8a6b, type: 2}
@@ -1996,12 +1996,15 @@ MonoBehaviour:
     <TurnController>k__BackingField:
       <CombatPhase>k__BackingField:
         <Attackers>k__BackingField: []
+        <Blockers>k__BackingField: []
   <ClientState>k__BackingField: 0
   <UIController>k__BackingField: {fileID: 107698473}
   <CardViewCreator>k__BackingField: {fileID: 1784210181}
   <PlayerView>k__BackingField: {fileID: 1575111851}
   <OpponentView>k__BackingField: {fileID: 194693972}
   <Attackers>k__BackingField: []
+  <Blockers>k__BackingField: []
+  <CurrentBlockingCreature>k__BackingField: {fileID: 0}
 --- !u!1 &968014230
 GameObject:
   m_ObjectHideFlags: 0
