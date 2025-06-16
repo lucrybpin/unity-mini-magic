@@ -19,6 +19,7 @@ public class MatchClientController : MonoBehaviour
   [field: Header("Core Components and SubControllers")]
   [field: SerializeField] public MatchServerController Server { get; private set; }
   [field: SerializeField] public PlayerViewState ClientState { get; private set; }
+  [field: SerializeField] public BlockController BlockController { get; private set; }
 
   [field: Header("External Controllers and Dependencies")]
   [field: SerializeField] public UIController UIController { get; private set; }
@@ -204,7 +205,7 @@ public class MatchClientController : MonoBehaviour
         break;
 
       case CombatStep.DeclareBlockers:
-        Blockers = new List<BlockData>();
+        BlockController.ClearBlockers();
         if(playerIndex == 1)
           UIController.SetButtonSkipVisibility(true, "Skip Combat Blockers");
         break;
@@ -305,55 +306,7 @@ public class MatchClientController : MonoBehaviour
     }
 
     // Ellect Blockers
-    bool isDeclareBlockersStep = Server.MatchState.CurrentPhase == GamePhase.Combat &&
-      Server.MatchState.CurrentCombatStep == CombatStep.DeclareBlockers;
-    if (!isMyTurn && isDeclareBlockersStep)
-    {
-      // Clicked in Blocker
-      if (Server.MatchState.PlayerStates[playerIndex].CreatureZone.Contains(cardView.Card) &&
-        !cardView.Card.IsTapped)
-      {
-        BlockData foundBlockData = Blockers.Find(x => x.Blockers.Contains(cardView.Card));
-        if (foundBlockData != null)
-        {
-          foundBlockData.Blockers.Remove(cardView.Card);
-          if (foundBlockData.Blockers.Count == 0)
-            Blockers.Remove(foundBlockData);
-          CurrentBlockingCreature = null;
-        }
-        else
-        {
-          CurrentBlockingCreature = cardView;
-        }
-        // cardView.Hover(0.34f);
-      }
-      // Clicked in Attacker
-      int attackingPlayerIndex = Server.MatchState.CurrentPlayerIndex;
-      if (Server.MatchState.PlayerStates[attackingPlayerIndex].CreatureZone.Contains(cardView.Card))
-      {
-        if (CurrentBlockingCreature != null)
-        {
-          BlockData foundBlockData = Blockers.Find(x => x.Attacker == cardView.Card);
-
-          if (foundBlockData != null)
-          {
-            if (!foundBlockData.Blockers.Contains(CurrentBlockingCreature.Card))
-            {
-              foundBlockData.Blockers.Add(CurrentBlockingCreature.Card);
-            }
-          }
-          else
-          {
-            List<Card> blockers = new List<Card>();
-            blockers.Add(CurrentBlockingCreature.Card);
-            BlockData blockData = new BlockData(blockers, cardView.Card);
-            Blockers.Add(blockData);
-            CurrentBlockingCreature = null;
-          }
-        }
-      }
-
-    }
+    BlockController.HandleCardClick(Server, playerIndex, cardView);
 
     await Task.Delay(1);
   }

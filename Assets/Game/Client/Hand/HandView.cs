@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Splines;
 
 public enum HandViewState
@@ -244,6 +245,7 @@ public class HandView : MonoBehaviour
         InspectingCard.transform.name = "Inspecting card";
         InspectingCard.transform.localScale = Vector3.zero;
         InspectingCard.transform.DOScale(2.2f * Vector3.one, 0.25f).SetEase(Ease.OutBack);
+        InspectingCard.GetComponent<SortingGroup>().sortingOrder = 3;
         InspectingCard.Setup(cardView.Card.Clone(), cardView.OwnerIndex); // I need a deep copy here, shallow copy will affect the original card
         InspectingCard.Card.IsInHand = false;
         FocusBackground.SetActive(true);
