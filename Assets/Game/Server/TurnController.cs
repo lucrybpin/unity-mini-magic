@@ -35,6 +35,7 @@ public class TurnController
         await ExecutePhase(GamePhase.EndPhase);
 
         Server.MatchState.CurrentPlayerIndex = (Server.MatchState.CurrentPlayerIndex + 1) % Server.MatchState.PlayerStates.Count;
+        Server.MatchState.TurnNumber++;
         await StartTurn();
     }
 
@@ -69,6 +70,11 @@ public class TurnController
     public void SetAttackers(List<Card> cards)
     {
         CombatPhase.SetAttackers(cards);
+    }
+
+    public void SetBlockers(List<BlockData> blockers)
+    {
+        CombatPhase.SetBlockers(blockers);
     }
 
     public List<Card> GetAttackers()

@@ -31,6 +31,10 @@ public class ResourcesView : MonoBehaviour
             cardSpacing /= 2;
 
         float firstLandPosition = 0.5f - (Resources.Count - 1) * cardSpacing / 2;
+        Debug.Log($">>>> Resources.Count = {Resources.Count}");
+        
+        Debug.Log($">>>> firstLandPosition = {firstLandPosition}");
+        
         Spline spline = SplineContainer.Spline;
 
         for (int i = 0; i < Resources.Count; i++)
@@ -40,7 +44,7 @@ public class ResourcesView : MonoBehaviour
             Vector3 forward = spline.EvaluateTangent(position);
             Vector3 up = spline.EvaluateUpVector(position);
             Quaternion rotation = Resources[i].Card.IsTapped ? Quaternion.Euler(0f, 0f, -90f) : Quaternion.identity;
-            Vector3 finalPosition = splinePosition + transform.position + (i + 1) * 0.025f * Vector3.back;
+            Vector3 finalPosition = splinePosition + transform.position; // + (i + 1) * 0.025f * Vector3.back;
 
             Resources[i].UpdateOriginalPositionAndRotation(finalPosition, rotation);
             Resources[i].transform.DOMove(finalPosition, 0.12f);

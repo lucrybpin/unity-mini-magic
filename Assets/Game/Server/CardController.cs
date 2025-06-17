@@ -104,6 +104,31 @@ public class CardController
         return Task.FromResult(result);
     }
 
+    public bool CanAttack(Card card)
+    {
+        if (card.Type != CardType.Creature)
+            return false;
+
+        if (card.IsTapped) // future feature: vigilance
+            return false;
+
+        if (card.CastTurnIndex == Server.MatchState.TurnNumber)
+            return false;
+
+        return true;
+    }
+
+    public bool CanBlock(Card card)
+    {
+        if (card.Type != CardType.Creature)
+            return false;
+
+        if (card.IsTapped)
+            return false;
+
+        return true;
+    }
+
     public async Task ProcessCardPlay(int playerIndex, Card card)
     {
         Debug.Log($"<color='red'>Server:</color> CastController - Processing Card {card.Name}");
@@ -111,6 +136,8 @@ public class CardController
         PlayerState playerState = Server.MatchState.PlayerStates[playerIndex];
 
         await PlayManaCost(playerState, card.Cost);
+
+        card.CastTurnIndex = Server.MatchState.TurnNumber;
 
         switch (card.Type)
         {
@@ -172,7 +199,6 @@ public class CardController
     Task<bool> ProcessCreature(Card card)
     {
         Debug.Log($"<color='red'>Server:</color> CastController - Processing Creature");
-        card.CanAttack = false;
         return Task.FromResult(true);
     }
 

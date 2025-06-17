@@ -101,6 +101,8 @@ public class AIController
     {
         Debug.Log($"<color='blue'>AI:</color> Execute Combat Phase");
 
+
+        PlayerState opponent = Server.MatchState.PlayerStates[0];
         PlayerState me = Server.MatchState.PlayerStates[1];
         bool isMyTurn = Server.MatchState.CurrentPlayerIndex == me.PlayerId;
 
@@ -116,7 +118,10 @@ public class AIController
         {
             List<Card> attackers = new List<Card>();
             foreach (Card card in me.CreatureZone)
-                attackers.Add(card);
+            {
+                if(Server.CardController.CanAttack(card))
+                    attackers.Add(card);
+            }
 
             Server.SetAttackers(attackers);
         }
@@ -129,6 +134,48 @@ public class AIController
         Debug.Log($"<color='blue'>AI:</color> Skip Clicked in Declare Blockers Step");
         if (!isMyTurn)
         {
+
+            List<Card> Attackers = Server.TurnController.CombatPhase.Attackers;
+            if (Attackers == null || Attackers.Count == 0)
+            {
+                Server.OnPlayerSkipClicked?.Invoke(1);
+            }
+
+            List<BlockData> blockers = new List<BlockData>();
+
+            // Foreach attacking creatures
+            foreach (Card attacker in Attackers)
+            {
+                int accumulatedAttack = attacker.Attack;
+                int accumulatedDefense = 0;
+
+                // Foreach creature in my side, tap until threath is 0
+                foreach (Card card in me.CreatureZone)
+                {
+                    if (accumulatedAttack <= accumulatedDefense)
+                        break;
+
+                    if (Server.CardController.CanBlock(card))
+                    {
+                        BlockData foundBlockData = blockers.Find(x => x.Attacker == attacker);
+                        if (foundBlockData == null)
+                        {
+                            // First blocker
+                            List<Card> defenders    = new List<Card> { card };
+                            BlockData blockData     = new BlockData(defenders, attacker);
+                            blockers.Add(blockData);
+                        }
+                        else
+                        {
+                            // Not first blocker to this creature
+                            foundBlockData.Blockers.Add(card);
+                        }
+                        accumulatedDefense += card.Defense;
+                    }
+                }
+            }
+            Server.SetBlockers(blockers);
+            
             Server.OnPlayerSkipClicked?.Invoke(1);
         }
 

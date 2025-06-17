@@ -26,7 +26,7 @@ public class BlockController
         {
             // Clicked in Blocker
             if (server.MatchState.PlayerStates[playerClickedIndex].CreatureZone.Contains(cardView.Card) &&
-              !cardView.Card.IsTapped)
+                server.CardController.CanBlock(cardView.Card))
             {
                 BlockData foundBlockData = Blockers.Find(x => x.Blockers.Contains(cardView.Card));
                 if (foundBlockData != null)

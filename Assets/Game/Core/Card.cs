@@ -17,8 +17,7 @@ public class Card
     // Creature Stats
     [field: SerializeField] public int Attack { get; private set; }
     [field: SerializeField] public int Defense { get; private set; }
-    [field: SerializeField] public bool CanAttack { get; set; }
-    [field: SerializeField] public bool CanBlock { get; private set; }
+    [field: SerializeField] public int CastTurnIndex { get; set; }
 
     // Game Info
     [field: SerializeField] public string InstanceID { get; private set; }
@@ -41,8 +40,6 @@ public class Card
         // Creature Info
         Attack = Data.Attack;
         Defense = Data.Defense;
-        CanAttack = Type == CardType.Creature;
-        CanBlock = Type == CardType.Creature;
         // Game Info
         InstanceID = Guid.NewGuid().ToString();
         IsInHand = true;

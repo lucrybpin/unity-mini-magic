@@ -126,6 +126,14 @@ public class CombatPhaseController
         }
     }
 
+    public void SetBlockers(List<BlockData> blockers)
+    {
+        if (blockers != null)
+        {
+            Blockers = blockers;
+        }
+    }
+
     async Task DeclareBlockers()
     {
         Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Declare Blockers step started.");

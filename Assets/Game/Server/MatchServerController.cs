@@ -159,7 +159,20 @@ public class MatchServerController
 
   public void SetAttackers(List<Card> cards)
   {
+    foreach (Card card in cards)
+    {
+      if (!CardController.CanAttack(card))
+      {
+        Debug.Log($"<color='red'>Server:</color> card {card.Name} can't attack");
+        return;
+      }
+    }
     TurnController.SetAttackers(cards);
+  }
+
+  public void SetBlockers(List<BlockData> blockers)
+  {
+    TurnController.SetBlockers(blockers);
   }
 
   public string SaveState()

@@ -32,8 +32,6 @@ public class MatchClientController : MonoBehaviour
   [field: SerializeField] public PlayerView OpponentView { get; private set; }
 
   [field: SerializeField] public List<Card> Attackers { get; private set; }
-  [field: SerializeField] public List<BlockData> Blockers { get; private set; }
-  [field: SerializeField] public CardView CurrentBlockingCreature { get; private  set; }
 
   async void Start()
   {
@@ -244,6 +242,8 @@ public class MatchClientController : MonoBehaviour
         break;
       case CombatStep.DeclareBlockers:
         UIController.SetButtonSkipVisibility(false);
+        if (playerIndex == 1)
+          Server.SetBlockers(BlockController.Blockers);
         // UIController.SetButtonSkipOpponentVisibility(false);
         break;
       case CombatStep.CombatDamage:
@@ -296,8 +296,11 @@ public class MatchClientController : MonoBehaviour
       Server.MatchState.CurrentCombatStep == CombatStep.DeclareAttackers;
     if (isMyTurn && isDeclareAttackersStep && !Attackers.Contains(cardView.Card))
     {
-      Attackers.Add(cardView.Card);
-      cardView.Hover(0.34f);
+      if (Server.CardController.CanAttack(cardView.Card))
+      {
+        Attackers.Add(cardView.Card);
+        cardView.Hover(0.34f);
+      }
     }
     else if (isDeclareAttackersStep && Attackers.Contains(cardView.Card))
     {
@@ -317,40 +320,6 @@ public class MatchClientController : MonoBehaviour
 
     PlayerView playerView = (playerIndex == 0) ? PlayerView : OpponentView;
     ExecutionResult result = await Server.CastCard(playerIndex, cardView.Card);
-    if (!result.Success)
-    {
-      Debug.Log($"<color='green'>Client:</color> card casted failed. {result.Message}");
-      _ = UIController.ShowMessage(result.Message);
-      playerView.ResolveCast(false);
-      return;
-    }
-
-    switch (cardView.Card.Type)
-    {
-      case CardType.Resource:
-        await ProcessResource(cardView, playerView);
-        break;
-
-      case CardType.Creature:
-        await ProcessCreature(cardView, playerView);
-        break;
-
-      case CardType.Enchantment:
-        await ProcessEnchantment(cardView, playerView);
-        break;
-
-      case CardType.Sorcery:
-        await ProcessSorcery(cardView, playerView);
-        break;
-
-      case CardType.Instant:
-        await ProcessInstant(cardView, playerView);
-        break;
-    }
-
-    playerView.ResolveCast(result.Success);
-
-    Debug.Log($"<color='green'>Client:</color> card casted successfully");
   }
 
   async Task WaitForPlayer1DrawCards(int amountOfCards)
