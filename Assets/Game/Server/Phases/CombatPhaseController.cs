@@ -181,6 +181,7 @@ public class CombatPhaseController
                 // TODO: Implement Damage to Player
             }
         }
+        await Task.Delay(1);
 
         Server.OnCombatStepEnded?.Invoke(CombatStep.CombatDamage);
     }

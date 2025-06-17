@@ -94,8 +94,6 @@ public class PlayerView : MonoBehaviour
 
     public async Task ProcessCreature(CardView cardView, List<Card> ServerResourceZone)
     {
-        // Tap Resources
-        await ResourcesView.SyncStatesWithServer(ServerResourceZone);
         // Move to Creatures Zone
         await HandView.RemoveCard(cardView);
         await CreaturesView.AddCard(cardView);

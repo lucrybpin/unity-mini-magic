@@ -24,14 +24,20 @@ public class BeginningPhaseController
         foreach (Card resource in playerState.ResourceZone)
         {
             if (resource.IsTapped)
+            {
                 resource.Untap();
+                Server.OnCardChangedState?.Invoke(resource);
+            }
         }
 
         // Untap Creatures
         foreach (Card creature in playerState.CreatureZone)
         {
             if (creature.IsTapped)
+            {
                 creature.Untap();
+                Server.OnCardChangedState?.Invoke(creature);
+            }
         }
 
         // Upkeep

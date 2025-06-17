@@ -44,6 +44,7 @@ public class MatchClientController : MonoBehaviour
     Server.OnCombatStepEnded += OnCombatStepEnded;
     Server.OnPlayerDrawCard += OnPlayerDrawCard;
     Server.OnPlayerCastCard += OnPlayerCastCard;
+    Server.OnCardChangedState += OnCardChangedState;
     bool result = await Server.PrepareNewMatch(CardListPlayer1, CardListPlayer2);
     PlayerView.OnDeckClicked += OnDeckClick;
     PlayerView.OnCardCastRequested += OnCardCastRequested;
@@ -63,7 +64,8 @@ public class MatchClientController : MonoBehaviour
     Server.StartMatch();
   }
 
-  void OnDestroy()
+
+    void OnDestroy()
   {
     Server.OnPhaseStarted -= OnPhaseStarted;
     Server.OnPhaseEnded -= OnPhaseEnded;
@@ -93,6 +95,7 @@ public class MatchClientController : MonoBehaviour
 
     OnPlayerCastCardAsync(playerIndex, card);
   }
+
 
   async void OnPlayerCastCardAsync(int playerIndex, Card card)
   {
@@ -255,6 +258,23 @@ public class MatchClientController : MonoBehaviour
     }
   }
 
+  private async void OnCardChangedState(Card card)
+  {
+    // TODO: instead of using find every time, use only at start and after that add to the _allCards list
+    List<CardView> _allCards = new List<CardView>(FindObjectsByType<CardView>(FindObjectsSortMode.None));
+    CardView cardView = _allCards.Find(x => x.Card == card);
+
+    // Tap and Untap
+    if (card.IsTapped && !cardView.IsVisuallyTapped())
+    {
+      await cardView.Tap();
+    }
+    else if (!card.IsTapped && cardView.IsVisuallyTapped())
+    {
+      await cardView.Untap();
+    }
+  }
+
   // Client Events
   void OnDeckClick(int playerIndex)
   {
@@ -320,6 +340,13 @@ public class MatchClientController : MonoBehaviour
 
     PlayerView playerView = (playerIndex == 0) ? PlayerView : OpponentView;
     ExecutionResult result = await Server.CastCard(playerIndex, cardView.Card);
+    if (!result.Success)
+    {
+      Debug.Log($"<color='green'>Client:</color> card casted failed. {result.Message}");
+      _ = UIController.ShowMessage(result.Message);
+      playerView.ResolveCast(false);
+      return;
+    }
   }
 
   async Task WaitForPlayer1DrawCards(int amountOfCards)

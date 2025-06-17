@@ -29,6 +29,7 @@ public class MatchServerController
 
   public Action<int, Card> OnPlayerDrawCard;
   public Action<int, Card> OnPlayerCastCard;
+  public Action<Card> OnCardChangedState;
 
   public Task<bool> PrepareNewMatch(List<CardData> CardListPlayer1, List<CardData> CardListPlayer2)
   {

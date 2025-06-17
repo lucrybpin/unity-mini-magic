@@ -44,32 +44,12 @@ public class ResourcesView : MonoBehaviour
             Vector3 forward = spline.EvaluateTangent(position);
             Vector3 up = spline.EvaluateUpVector(position);
             Quaternion rotation = Resources[i].Card.IsTapped ? Quaternion.Euler(0f, 0f, -90f) : Quaternion.identity;
-            Vector3 finalPosition = splinePosition + transform.position; // + (i + 1) * 0.025f * Vector3.back;
+            Vector3 finalPosition = splinePosition + transform.position + (i + 1) * 0.025f * Vector3.back;
 
             Resources[i].UpdateOriginalPositionAndRotation(finalPosition, rotation);
             Resources[i].transform.DOMove(finalPosition, 0.12f);
             Resources[i].transform.DORotateQuaternion(rotation, 0.12f);
         }
         await Task.Delay(TimeSpan.FromSeconds(0.12f));
-    }
-
-    public async Task SyncStatesWithServer(List<Card> serverResourcesZone)
-    {
-        foreach (Card serverCard in serverResourcesZone)
-        {
-            CardView cardView = Resources.Find(view => view.Card.InstanceID == serverCard.InstanceID);
-
-            if (cardView != null)
-            {
-                if (serverCard.IsTapped && !cardView.IsVisuallyTapped())
-                {
-                    await cardView.Tap();
-                }
-                else if (!serverCard.IsTapped && cardView.IsVisuallyTapped())
-                {
-                    await cardView.Untap();
-                }
-            }
-        }
     }
 }

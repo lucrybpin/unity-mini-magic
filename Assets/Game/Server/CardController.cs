@@ -178,12 +178,13 @@ public class CardController
     {
         int tappedResources = 0;
 
-        foreach (var resource in playerState.ResourceZone)
+        foreach (Card resource in playerState.ResourceZone)
         {
             if (!resource.IsTapped && tappedResources < manaCost)
             {
                 resource.Tap();
                 tappedResources++;
+                Server.OnCardChangedState?.Invoke(resource);
             }
         }
 
