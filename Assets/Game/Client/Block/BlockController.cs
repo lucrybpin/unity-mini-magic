@@ -17,10 +17,25 @@ public class BlockController
         Blockers = new List<BlockData>();
     }
 
+    public void ClearView()
+    {
+        BlockView.ClearAllArrows();
+    }
+
+    public void SetBlockers(List<BlockData> blockers)
+    {
+        Blockers = blockers;
+        BlockView.UpdateBlockersView(Blockers);
+    }
+
     public void HandleCardClick(MatchServerController server, int playerClickedIndex, CardView cardView)
     {
         bool isDeclareBlockersStep = server.MatchState.CurrentPhase == GamePhase.Combat && server.MatchState.CurrentCombatStep == CombatStep.DeclareBlockers;
         bool isMyTurn = playerClickedIndex == server.MatchState.CurrentPlayerIndex;
+        List<Card> attackers = server.TurnController.GetAttackers();
+
+        if (attackers == null || attackers.Count == 0)
+            return;
 
         if (!isMyTurn && isDeclareBlockersStep)
         {
@@ -45,7 +60,7 @@ public class BlockController
             }
             // Clicked in Attacker
             int attackingPlayerIndex = server.MatchState.CurrentPlayerIndex;
-            if (server.MatchState.PlayerStates[attackingPlayerIndex].CreatureZone.Contains(cardView.Card))
+            if (server.MatchState.PlayerStates[attackingPlayerIndex].CreatureZone.Contains(cardView.Card) && attackers.Contains(cardView.Card))
             {
                 if (CurrentBlockingCreature != null)
                 {

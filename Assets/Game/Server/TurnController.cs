@@ -46,7 +46,7 @@ public class TurnController
         Server.OnPhaseStarted?.Invoke(phase);
 
         Debug.Log($"------- ------- ------- ------- ------- ------ -------");
-        
+
 
         switch (phase)
         {
@@ -80,5 +80,10 @@ public class TurnController
     public List<Card> GetAttackers()
     {
         return CombatPhase.Attackers;
+    }
+
+    public List<BlockData> GetBlockers()
+    {
+        return CombatPhase.Blockers;
     }
 }

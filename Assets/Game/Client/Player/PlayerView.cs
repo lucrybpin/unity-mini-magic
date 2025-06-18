@@ -104,14 +104,15 @@ public class PlayerView : MonoBehaviour
         foreach (Card card in attackers)
         {
             CardView creatureCard = CreaturesView.FindCardView(card);
-            if (creatureCard != null)
-            {
-                _ = creatureCard.Tap();
-            }
-            else
-            {
-                Debug.Log($"<color='green'>Client:</color> creature card {card.InstanceID} not found in CreaturesView");
-            }
+            creatureCard.Refresh();
+            // if (creatureCard != null)
+            // {
+            //     _ = creatureCard.Tap();
+            // }
+            // else
+            // {
+            //     Debug.Log($"<color='green'>Client:</color> creature card {card.InstanceID} not found in CreaturesView");
+            // }
         }
     }
 

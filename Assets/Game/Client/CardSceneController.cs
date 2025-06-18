@@ -113,7 +113,8 @@ public class CardSceneController : MonoBehaviour
         {
             if (cardView.Card.IsTapped == false)
             {
-                await cardView.Tap();
+                // await cardView.Tap();
+                cardView.Refresh();
                 ResourcesAvailable += 1;
             }
             // else
@@ -129,13 +130,15 @@ public class CardSceneController : MonoBehaviour
         {
             if (cardView.Card.IsTapped == false)
             {
-                await cardView.Tap();
+                // await cardView.Tap();
+                cardView.Refresh();
                 ResourcesAvailable += 1;
             }
             else
             {
                 ResourcesAvailable -= 1;
-                await cardView.Untap();
+                cardView.Refresh();
+                // await cardView.Untap();
             }
             InteractinCard = null;
             HandController2.ResolveCardInteraciton();

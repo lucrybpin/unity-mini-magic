@@ -30,11 +30,26 @@ public class CardView : MonoBehaviour
         Cost.text = Card.Cost.ToString();
         SpriteRenderer.sprite = Card.Sprite;
         Attack.text = Card.Attack.ToString();
-        Defense.text = Card.Defense.ToString();
-        if (Card.Attack == 0 && Card.Defense == 0)
+        Defense.text = Card.Resistance.ToString();
+        if (Card.Attack == 0 && Card.Resistance == 0)
         {
             CombatSection.SetActive(false);
         }
+    }
+
+    public void Refresh()
+    {
+        Name.text = Card.Name;
+        Type.text = Card.Type.ToString();
+        Description.text = Card.Description;
+        Cost.text = Card.Cost.ToString();
+        SpriteRenderer.sprite = Card.Sprite;
+        Attack.text = Card.Attack.ToString();
+        Defense.text = Card.Resistance.ToString();
+        if (Card.IsTapped)
+            _ = Tap();
+        else
+            _ = Untap();
     }
 
     public void UpdateOriginalPositionAndRotation(Vector3 position, Quaternion rotation)

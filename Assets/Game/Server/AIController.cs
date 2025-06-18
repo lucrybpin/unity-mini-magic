@@ -142,6 +142,7 @@ public class AIController
             }
 
             List<BlockData> blockers = new List<BlockData>();
+            List<Card> occupiedCreatures = new List<Card>();
 
             // Foreach attacking creatures
             foreach (Card attacker in Attackers)
@@ -155,7 +156,7 @@ public class AIController
                     if (accumulatedAttack <= accumulatedDefense)
                         break;
 
-                    if (Server.CardController.CanBlock(card))
+                    if (Server.CardController.CanBlock(card) && !occupiedCreatures.Contains(card))
                     {
                         BlockData foundBlockData = blockers.Find(x => x.Attacker == attacker);
                         if (foundBlockData == null)
@@ -170,7 +171,8 @@ public class AIController
                             // Not first blocker to this creature
                             foundBlockData.Blockers.Add(card);
                         }
-                        accumulatedDefense += card.Defense;
+                        occupiedCreatures.Add(card);
+                        accumulatedDefense += card.Resistance;
                     }
                 }
             }

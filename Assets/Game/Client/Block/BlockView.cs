@@ -35,7 +35,7 @@ public class BlockView : MonoBehaviour
             }
         }
     }
-    private void ClearAllArrows()
+    public void ClearAllArrows()
     {
         if (_arrows != null)
         {

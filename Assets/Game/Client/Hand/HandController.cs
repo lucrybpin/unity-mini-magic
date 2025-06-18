@@ -76,6 +76,7 @@ public class HandController : MonoBehaviour
 
                             if (SelectedCard.Card.IsInField && SelectedCard.Card.Type == CardType.Resource)
                             {
+                                // TODO: Card tap only and send to client controller to refresh cardView
                                 _ = SelectedCard.Tap();
                             }
                         }

@@ -16,7 +16,7 @@ public class Card
 
     // Creature Stats
     [field: SerializeField] public int Attack { get; private set; }
-    [field: SerializeField] public int Defense { get; private set; }
+    [field: SerializeField] public int Resistance { get; private set; }
     [field: SerializeField] public int CastTurnIndex { get; set; }
 
     // Game Info
@@ -39,7 +39,7 @@ public class Card
         Sprite = Data.Sprite;
         // Creature Info
         Attack = Data.Attack;
-        Defense = Data.Defense;
+        Resistance = Data.Defense;
         // Game Info
         InstanceID = Guid.NewGuid().ToString();
         IsInHand = true;
@@ -65,5 +65,10 @@ public class Card
         clonedCard.IsInHand = this.IsInHand;
         clonedCard.IsTapped = this.IsTapped;
         return clonedCard;
+    }
+
+    public void ReceiveDamage(int damageAmount)
+    {
+        Resistance -= damageAmount;
     }
 }

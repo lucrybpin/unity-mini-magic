@@ -20,6 +20,7 @@ public class MatchClientController : MonoBehaviour
   [field: SerializeField] public MatchServerController Server { get; private set; }
   [field: SerializeField] public PlayerViewState ClientState { get; private set; }
   [field: SerializeField] public BlockController BlockController { get; private set; }
+  [field: SerializeField] public AttackController AttackController { get; private set; }
 
   [field: Header("External Controllers and Dependencies")]
   [field: SerializeField] public UIController UIController { get; private set; }
@@ -30,8 +31,6 @@ public class MatchClientController : MonoBehaviour
 
   [field: Header("Opponent View Elements")]
   [field: SerializeField] public PlayerView OpponentView { get; private set; }
-
-  [field: SerializeField] public List<Card> Attackers { get; private set; }
 
   async void Start()
   {
@@ -73,9 +72,11 @@ public class MatchClientController : MonoBehaviour
     Server.OnCombatStepEnded -= OnCombatStepEnded;
     Server.OnPlayerDrawCard -= OnPlayerDrawCard;
     Server.OnPlayerCastCard -= OnPlayerCastCard;
+    Server.OnCardChangedState -= OnCardChangedState;
 
     PlayerView.OnDeckClicked -= OnDeckClick;
     PlayerView.OnCardCastRequested -= OnCardCastRequested;
+    PlayerView.OnCardClicked -= OnCardClicked;
     UIController.OnButtonSkipClicked -= OnButtonSkipClick;
   }
 
@@ -89,16 +90,10 @@ public class MatchClientController : MonoBehaviour
     _ = playerView.DrawCard(newCard); ;
   }
 
-  void OnPlayerCastCard(int playerIndex, Card card)
+  async void OnPlayerCastCard(int playerIndex, Card card)
   {
     Debug.Log($"<color='green'>Client:</color> Player {playerIndex} casted card {card.Name}");
 
-    OnPlayerCastCardAsync(playerIndex, card);
-  }
-
-
-  async void OnPlayerCastCardAsync(int playerIndex, Card card)
-  {
     PlayerView playerView = (playerIndex == 0) ? PlayerView : OpponentView;
 
     CardView cardView = playerView.HandView.GetCardView(card);
@@ -139,22 +134,18 @@ public class MatchClientController : MonoBehaviour
     {
       case GamePhase.Beginning:
         UIController.SetButtonSkipVisibility(true, "Pass Upkeep");
-        // UIController.SetButtonSkipOpponentVisibility(true, "Pass Upkeep");
         break;
       case GamePhase.MainPhase1:
         UIController.SetButtonSkipVisibility(true, "End Main Phase 1");
-        // UIController.SetButtonSkipOpponentVisibility(true, "End Main Phase 1");
         break;
       case GamePhase.Combat:
         // Handled in OnCombatStepStart
         break;
       case GamePhase.MainPhase2:
         UIController.SetButtonSkipVisibility(true, "End Main Phase 2");
-        // UIController.SetButtonSkipOpponentVisibility(true, "End Main Phase 2");
         break;
       case GamePhase.EndPhase:
         UIController.SetButtonSkipVisibility(true, "Pass End");
-        // UIController.SetButtonSkipOpponentVisibility(true, "Pass End");
         break;
     }
   }
@@ -200,7 +191,7 @@ public class MatchClientController : MonoBehaviour
         break;
 
       case CombatStep.DeclareAttackers:
-        Attackers = new List<Card>();
+        AttackController.ClearAttackers();
         if (playerIndex == 0)
           UIController.SetButtonSkipVisibility(true, "Proceed");
         break;
@@ -215,8 +206,8 @@ public class MatchClientController : MonoBehaviour
         break;
 
       case CombatStep.EndCombat:
+        BlockController.ClearView();
         UIController.SetButtonSkipVisibility(true, "Skip Combat End");
-        // UIController.SetButtonSkipOpponentVisibility(true, "Skip Combat End");
         break;
 
     }
@@ -232,12 +223,11 @@ public class MatchClientController : MonoBehaviour
     {
       case CombatStep.BeginCombat:
         UIController.SetButtonSkipVisibility(false);
-        // UIController.SetButtonSkipOpponentVisibility(false);
         break;
       case CombatStep.DeclareAttackers:
         UIController.SetButtonSkipVisibility(false);
         if(playerIndex == 0)
-          Server.SetAttackers(Attackers);
+          Server.SetAttackers(AttackController.Attackers);
         // Tap Attacking Creatures
         PlayerView attackingPlayer = playerIndex == 0 ? PlayerView : OpponentView;
         List<Card> attackers = Server.TurnController.GetAttackers();
@@ -247,7 +237,13 @@ public class MatchClientController : MonoBehaviour
         UIController.SetButtonSkipVisibility(false);
         if (playerIndex == 1)
           Server.SetBlockers(BlockController.Blockers);
-        // UIController.SetButtonSkipOpponentVisibility(false);
+        else
+        {
+          PlayerView blockingPlayer = playerIndex == 0 ? PlayerView : OpponentView;
+          List<BlockData> blockers = Server.TurnController.GetBlockers();
+          BlockController.SetBlockers(blockers);
+        }
+
         break;
       case CombatStep.CombatDamage:
         break;
@@ -264,15 +260,7 @@ public class MatchClientController : MonoBehaviour
     List<CardView> _allCards = new List<CardView>(FindObjectsByType<CardView>(FindObjectsSortMode.None));
     CardView cardView = _allCards.Find(x => x.Card == card);
 
-    // Tap and Untap
-    if (card.IsTapped && !cardView.IsVisuallyTapped())
-    {
-      await cardView.Tap();
-    }
-    else if (!card.IsTapped && cardView.IsVisuallyTapped())
-    {
-      await cardView.Untap();
-    }
+    cardView.Refresh();
   }
 
   // Client Events
@@ -287,46 +275,12 @@ public class MatchClientController : MonoBehaviour
     Server.DrawCard(playerIndex);
   }
 
-  void OnCardClicked(CardView cardView, int playerIndex)
-  {
-    _ = OnCardClickedTask(cardView, playerIndex);
-  }
-
-  void OnCardCastRequested(CardView cardView, int playerIndex)
-  {
-    if (cardView != null)
-      _ = OnCardCastRequestedTask(cardView, playerIndex);
-  }
-
-  void OnButtonSkipClick(int playerIndex)
-  {
-    Debug.Log($"<color='green'>Client:</color> Button End Phase/Step Clicked by Player {playerIndex}");
-    Server.OnPlayerSkipClicked(playerIndex);
-  }
-
-  // Support Methods
-
-  async Task OnCardClickedTask(CardView cardView, int playerIndex)
+  async void OnCardClicked(CardView cardView, int playerIndex)
   {
     Debug.Log($"<color='green'>Client:</color> Card Clicked {cardView.Card.Name} - {cardView.Card.InstanceID}");
 
-    // Ellect Attackers during Declare Attackers Step
-    bool isMyTurn = playerIndex == Server.MatchState.CurrentPlayerIndex;
-    bool isDeclareAttackersStep = Server.MatchState.CurrentPhase == GamePhase.Combat &&
-      Server.MatchState.CurrentCombatStep == CombatStep.DeclareAttackers;
-    if (isMyTurn && isDeclareAttackersStep && !Attackers.Contains(cardView.Card))
-    {
-      if (Server.CardController.CanAttack(cardView.Card))
-      {
-        Attackers.Add(cardView.Card);
-        cardView.Hover(0.34f);
-      }
-    }
-    else if (isDeclareAttackersStep && Attackers.Contains(cardView.Card))
-    {
-      Attackers.Remove(cardView.Card);
-      cardView.ReturnCardToOriginalPosition();
-    }
+    // Ellect Attackers
+    AttackController.HandleCardClick(Server, playerIndex, cardView);
 
     // Ellect Blockers
     BlockController.HandleCardClick(Server, playerIndex, cardView);
@@ -334,8 +288,11 @@ public class MatchClientController : MonoBehaviour
     await Task.Delay(1);
   }
 
-  async Task OnCardCastRequestedTask(CardView cardView, int playerIndex)
+  async void OnCardCastRequested(CardView cardView, int playerIndex)
   {
+    if (cardView == null)
+      return;
+
     Debug.Log($"<color='green'>Client:</color> Trying to cast {cardView.Card.Name}");
 
     PlayerView playerView = (playerIndex == 0) ? PlayerView : OpponentView;
@@ -349,6 +306,13 @@ public class MatchClientController : MonoBehaviour
     }
   }
 
+  void OnButtonSkipClick(int playerIndex)
+  {
+    Debug.Log($"<color='green'>Client:</color> Button End Phase/Step Clicked by Player {playerIndex}");
+    Server.OnPlayerSkipClicked(playerIndex);
+  }
+
+  // Support Methods
   async Task WaitForPlayer1DrawCards(int amountOfCards)
   {
     int expectedHandSize = Server.MatchState.PlayerStates[0].Hand.Count + amountOfCards;
@@ -406,17 +370,4 @@ public class MatchClientController : MonoBehaviour
     // View
     return Task.FromResult(true);
   }
-
-  async Task OpponentDrawHand()
-  {
-    PlayerState opponentState = Server.MatchState.PlayerStates[1];
-    for (int i = 0; i < opponentState.Hand.Count; i++)
-    {
-      Card card = opponentState.Hand[i];
-      CardView newCard = CardViewCreator.CreateCardView(card, 1);
-      await OpponentView.DrawCard(newCard);
-      await Task.Delay(TimeSpan.FromSeconds(0.2f));
-    }
-  }
-
 }

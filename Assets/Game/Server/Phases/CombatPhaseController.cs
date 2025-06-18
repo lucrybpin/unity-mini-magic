@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
+// public class CombatResult
+// {
+//     public List<Card> 
+// }
+
 [Serializable]
 public class BlockData
 {
@@ -123,6 +128,9 @@ public class CombatPhaseController
         if (cards != null)
         {
             Attackers = cards;
+
+            foreach (Card card in cards)
+                card.Tap();
         }
     }
 
@@ -173,7 +181,16 @@ public class CombatPhaseController
 
             if (blockData != null && blockData.Blockers != null && blockData.Blockers.Count > 0)
             {
-                // TODO: Implement Blocking
+                int remainingDamage = attacker.Attack;
+                foreach (Card blocker in blockData.Blockers)
+                {
+                    int damageToBlocker = Math.Min(blocker.Resistance, remainingDamage);
+                    blocker.ReceiveDamage(damageToBlocker);
+                    remainingDamage -= damageToBlocker;
+                    attacker.ReceiveDamage(blocker.Attack);
+                    Server.OnCardChangedState?.Invoke(blocker);
+                    Server.OnCardChangedState?.Invoke(attacker);
+                }
             }
             else
             {
@@ -181,7 +198,8 @@ public class CombatPhaseController
                 // TODO: Implement Damage to Player
             }
         }
-        await Task.Delay(1);
+        if(Attackers != null && Attackers.Count != 0)
+            await Task.Delay(TimeSpan.FromSeconds(10));
 
         Server.OnCombatStepEnded?.Invoke(CombatStep.CombatDamage);
     }
