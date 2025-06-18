@@ -62,11 +62,14 @@ public class CombatPhaseController
         Server.OnCombatStepStarted?.Invoke(CombatStep.BeginCombat);
         bool _player1Skipped = false;
         bool _player2Skipped = false;
+        Attackers.Clear();
+        Blockers.Clear();
 
         TaskCompletionSource<bool> skipped = new TaskCompletionSource<bool>();
         float stepTimeout = 30f;
 
         Server.OnPlayerSkipClicked += OnPlayerSkip;
+        Server.OnTimerChanged?.Invoke(stepTimeout);
         Task timeout = Task.Delay(TimeSpan.FromSeconds(stepTimeout));
         Task finished = await Task.WhenAny(skipped.Task, timeout);
         Server.OnPlayerSkipClicked -= OnPlayerSkip;
@@ -103,6 +106,7 @@ public class CombatPhaseController
         float stepTimeout = 30f;
 
         Server.OnPlayerSkipClicked += OnPlayerSkip;
+        Server.OnTimerChanged?.Invoke(stepTimeout);
         Task timeout = Task.Delay(TimeSpan.FromSeconds(stepTimeout));
         Task finished = await Task.WhenAny(skipped.Task, timeout);
         Server.OnPlayerSkipClicked -= OnPlayerSkip;
@@ -150,9 +154,10 @@ public class CombatPhaseController
         Server.OnCombatStepStarted?.Invoke(CombatStep.DeclareBlockers);
 
         TaskCompletionSource<bool> skipped = new TaskCompletionSource<bool>();
-        float stepTimeout = 230f;
+        float stepTimeout = 30f;
 
         Server.OnPlayerSkipClicked += OnPlayerSkip;
+        Server.OnTimerChanged?.Invoke(stepTimeout);
         Task timeout = Task.Delay(TimeSpan.FromSeconds(stepTimeout));
         Task finished = await Task.WhenAny(skipped.Task, timeout);
         Server.OnPlayerSkipClicked -= OnPlayerSkip;
@@ -195,11 +200,17 @@ public class CombatPhaseController
             else
             {
                 Debug.Log($"<color='red'>Server:</color> Turn Controller - Combat Phase - Creature {attacker.Name} deal {attacker.Attack} damage to defending player. ");
-                // TODO: Implement Damage to Player
+                int defendingPlayerIndex = (Server.MatchState.CurrentPlayerIndex + 1) % Server.MatchState.PlayerStates.Count;
+                PlayerState defendingPlayer = Server.MatchState.PlayerStates[defendingPlayerIndex];
+                defendingPlayer.Life -= attacker.Attack;
+                Server.OnPlayerLifeChanged?.Invoke(defendingPlayerIndex, defendingPlayer.Life);
             }
         }
-        if(Attackers != null && Attackers.Count != 0)
+        if (Attackers != null && Attackers.Count != 0)
+        {
+            Server.OnTimerChanged?.Invoke(10);
             await Task.Delay(TimeSpan.FromSeconds(10));
+        }
 
         Server.OnCombatStepEnded?.Invoke(CombatStep.CombatDamage);
     }
@@ -213,10 +224,29 @@ public class CombatPhaseController
         bool _player1Skipped = false;
         bool _player2Skipped = false;
 
+        // Put dead creatures from combat in graveyard
+        int attackingPlayer = Server.MatchState.CurrentPlayerIndex;
+        int defendingPlayer = (Server.MatchState.CurrentPlayerIndex + 1) % Server.MatchState.PlayerStates.Count;
+        foreach (Card attacker in Attackers)
+        {
+            if (attacker.Resistance == 0)
+                Server.ZonesController.MoveCard(attacker, attackingPlayer, ZoneType.Creature, ZoneType.Graveyard);
+        }
+
+        foreach (BlockData blockData in Blockers)
+        {
+            foreach (Card blocker in blockData.Blockers)
+            {
+                if(blocker.Resistance == 0)
+                    Server.ZonesController.MoveCard(blocker, defendingPlayer, ZoneType.Creature, ZoneType.Graveyard);
+            }
+        }
+
         TaskCompletionSource<bool> skipped = new TaskCompletionSource<bool>();
-        float stepTimeout = 30f;
+        float stepTimeout = 10f;
 
         Server.OnPlayerSkipClicked += OnPlayerSkip;
+        Server.OnTimerChanged?.Invoke(stepTimeout);
         Task timeout = Task.Delay(TimeSpan.FromSeconds(stepTimeout));
         Task finished = await Task.WhenAny(skipped.Task, timeout);
         Server.OnPlayerSkipClicked -= OnPlayerSkip;

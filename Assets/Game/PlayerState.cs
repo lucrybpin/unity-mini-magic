@@ -21,6 +21,7 @@ public class PlayerState
         ResourceZone = new List<Card>();
         CreatureZone = new List<Card>();
         EnchantmentZone = new List<Card>();
+        GraveyardZone = new List<Card>();
         Life = 20;
         ResourcesPlayedThisTurn = 0;
     }

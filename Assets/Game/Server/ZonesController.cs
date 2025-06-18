@@ -21,10 +21,11 @@ public class ZonesController
         Server = matchServerController;
     }
 
-    public void MoveCard(Card card, ZoneType from, ZoneType to, int playerID)
+    public void MoveCard(Card card, int playerIndex, ZoneType from, ZoneType to)
     {
-        RemoveFromZone(card, from, playerID);
-        AddToZone(card, to, playerID);
+        RemoveFromZone(card, from, playerIndex);
+        AddToZone(card, to, playerIndex);
+        Server.OnCardZoneChanged?.Invoke(card, playerIndex, from, to);
         Debug.Log($"<color='red'>Server:</color> ZonesController - Moved Card {card.Name} from {from} to {to}");
     }
 
@@ -62,18 +63,28 @@ public class ZonesController
                 break;
             case ZoneType.Hand:
                 Server.MatchState.PlayerStates[playerID].Hand.Add(card);
+                card.IsInHand = true;
+                card.IsInField = false;
                 break;
             case ZoneType.Creature:
                 Server.MatchState.PlayerStates[playerID].CreatureZone.Add(card);
+                card.IsInHand = false;
+                card.IsInField = true;
                 break;
             case ZoneType.Resource:
                 Server.MatchState.PlayerStates[playerID].ResourceZone.Add(card);
+                card.IsInHand = false;
+                card.IsInField = true;
                 break;
             case ZoneType.Enchantment:
                 Server.MatchState.PlayerStates[playerID].EnchantmentZone.Add(card);
+                card.IsInHand = false;
+                card.IsInField = true;
                 break;
             case ZoneType.Graveyard:
                 Server.MatchState.PlayerStates[playerID].GraveyardZone.Add(card);
+                card.IsInHand = false;
+                card.IsInField = false;
                 break;
         }
     }

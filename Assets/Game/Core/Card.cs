@@ -42,7 +42,7 @@ public class Card
         Resistance = Data.Defense;
         // Game Info
         InstanceID = Guid.NewGuid().ToString();
-        IsInHand = true;
+        IsInHand = false;
         IsInField = false;
         IsTapped = false;
         // Effeccts

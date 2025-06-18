@@ -61,6 +61,7 @@ public class BeginningPhaseController
         float upkeepTimeout = 30f;
 
         Server.OnPlayerSkipClicked += OnPlayerSkip;
+        Server.OnTimerChanged?.Invoke(upkeepTimeout);
         Task timeout = Task.Delay(TimeSpan.FromSeconds(upkeepTimeout));
         Task finished = await Task.WhenAny(opponentPassedUpkeep.Task, timeout);
         Server.OnPlayerSkipClicked -= OnPlayerSkip;

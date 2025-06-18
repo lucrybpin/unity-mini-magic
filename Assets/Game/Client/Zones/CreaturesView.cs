@@ -19,10 +19,18 @@ public class CreaturesView : MonoBehaviour
     {
         Creatures.Add(cardView);
         cardView.Card.IsInField = true;
-        await UpdateResourcesPositions();
+        cardView.transform.SetParent(transform);
+        await UpdateCardPositions();
     }
 
-    public async Task UpdateResourcesPositions()
+    public async Task RemoveCard(CardView cardView)
+    {
+        Creatures.Remove(cardView);
+        await UpdateCardPositions();
+        cardView.transform.SetParent(null);
+    }
+
+    public async Task UpdateCardPositions()
     {
         if (Creatures.Count == 0) return;
 

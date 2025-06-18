@@ -16,6 +16,7 @@ public class PlayerView : MonoBehaviour
     [field: SerializeField] public HandView HandView { get; private set; }
     [field: SerializeField] public CreaturesView CreaturesView { get; private set; }
     [field: SerializeField] public ResourcesView ResourcesView { get; private set; }
+    [field: SerializeField] public GraveyardView GraveyardView { get; private set; }
 
     [field: Header("State and Controls")]
     [field: SerializeField] public PlayerViewState ViewState { get; set; }
@@ -86,6 +87,21 @@ public class PlayerView : MonoBehaviour
         ViewState = PlayerViewState.Idle;
     }
 
+    public async Task MoveToGraveyard(CardView cardView)
+    {
+        switch (cardView.Card.Type)
+        {
+            case CardType.Creature:
+                await CreaturesView.RemoveCard(cardView);
+                break;
+            // case CardType.Resource:
+            //     await ResourcesView.RemoveCard
+        }
+
+        await GraveyardView.AddCard(cardView);
+    }
+
+
     public async Task ProcessResource(CardView cardView)
     {
         await HandView.RemoveCard(cardView);
@@ -105,14 +121,6 @@ public class PlayerView : MonoBehaviour
         {
             CardView creatureCard = CreaturesView.FindCardView(card);
             creatureCard.Refresh();
-            // if (creatureCard != null)
-            // {
-            //     _ = creatureCard.Tap();
-            // }
-            // else
-            // {
-            //     Debug.Log($"<color='green'>Client:</color> creature card {card.InstanceID} not found in CreaturesView");
-            // }
         }
     }
 

@@ -182,7 +182,7 @@ public class HandView : MonoBehaviour
         else
         {
             Resume();
-            _ = UpdateCardPositions();
+            _ = UpdateCardsPositions();
         }
     }
 
@@ -190,7 +190,8 @@ public class HandView : MonoBehaviour
     {
         State = HandViewState.Drawing;
         Cards.Add(cardView);
-        await UpdateCardPositions();
+        cardView.transform.SetParent(transform);
+        await UpdateCardsPositions();
         State = HandViewState.Idle;
     }
 
@@ -198,10 +199,11 @@ public class HandView : MonoBehaviour
     {
         Cards.Remove(cardView);
         cardView.Card.IsInHand = false;
-        await UpdateCardPositions();
+        cardView.transform.SetParent(null);
+        await UpdateCardsPositions();
     }
 
-    async Task UpdateCardPositions()
+    async Task UpdateCardsPositions()
     {
         if (Cards.Count == 0) return;
 

@@ -19,10 +19,18 @@ public class ResourcesView : MonoBehaviour
     {
         Resources.Add(cardView);
         cardView.Card.IsInField = true;
-        await UpdateResourcesPositions();
+        cardView.transform.SetParent(transform);
+        await UpdateCardsPositions();
     }
 
-    public async Task UpdateResourcesPositions()
+    public async Task RemoveCard(CardView cardView)
+    {
+        Resources.Remove(cardView);
+        cardView.transform.SetParent(null);
+        await UpdateCardsPositions();
+    }
+
+    public async Task UpdateCardsPositions()
     {
         if (Resources.Count == 0) return;
 
@@ -31,10 +39,7 @@ public class ResourcesView : MonoBehaviour
             cardSpacing /= 2;
 
         float firstLandPosition = 0.5f - (Resources.Count - 1) * cardSpacing / 2;
-        Debug.Log($">>>> Resources.Count = {Resources.Count}");
-        
-        Debug.Log($">>>> firstLandPosition = {firstLandPosition}");
-        
+
         Spline spline = SplineContainer.Spline;
 
         for (int i = 0; i < Resources.Count; i++)

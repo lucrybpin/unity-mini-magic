@@ -142,33 +142,33 @@ public class CardController
         switch (card.Type)
         {
             case CardType.Resource:
-                Server.ZonesController.MoveCard(card, ZoneType.Hand, ZoneType.Resource, playerIndex);
+                Server.ZonesController.MoveCard(card, playerIndex, ZoneType.Hand, ZoneType.Resource);
                 playerState.ResourcesPlayedThisTurn++;
                 // playerState.ResourceZone.Add(card);
                 await ProcessResource(card);
                 break;
 
             case CardType.Creature:
-                Server.ZonesController.MoveCard(card, ZoneType.Hand, ZoneType.Creature, playerIndex);
+                Server.ZonesController.MoveCard(card, playerIndex, ZoneType.Hand, ZoneType.Creature);
                 // playerState.CreatureZone.Add(card);
                 await ProcessCreature(card);
                 break;
 
             case CardType.Enchantment:
-                Server.ZonesController.MoveCard(card, ZoneType.Hand, ZoneType.Enchantment, playerIndex);
+                Server.ZonesController.MoveCard(card, playerIndex, ZoneType.Hand, ZoneType.Enchantment);
                 // playerState.EnchantmentZone.Add(card);
                 await ProcessEnchantment(card);
                 break;
 
             case CardType.Sorcery:
                 await ProcessSorcery(card);
-                Server.ZonesController.MoveCard(card, ZoneType.Hand, ZoneType.Graveyard, playerIndex);
+                Server.ZonesController.MoveCard(card, playerIndex, ZoneType.Hand, ZoneType.Graveyard);
                 // playerState.GraveyardZone.Add(card);
                 break;
 
             case CardType.Instant:
                 await ProcessInstant(card);
-                Server.ZonesController.MoveCard(card, ZoneType.Hand, ZoneType.Graveyard, playerIndex);
+                Server.ZonesController.MoveCard(card, playerIndex, ZoneType.Hand, ZoneType.Graveyard);
                 // playerState.GraveyardZone.Add(card);
                 break;
         }

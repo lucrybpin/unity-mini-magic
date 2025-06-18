@@ -20,7 +20,7 @@ public class AttackController
         bool isDeclareAttackersStep = server.MatchState.CurrentPhase == GamePhase.Combat &&
           server.MatchState.CurrentCombatStep == CombatStep.DeclareAttackers;
 
-        if (isMyTurn && isDeclareAttackersStep && !Attackers.Contains(cardView.Card))
+        if (isMyTurn && isDeclareAttackersStep && !Attackers.Contains(cardView.Card) && cardView.OwnerIndex == playerClickedIndex)
         {
             if (server.CardController.CanAttack(cardView.Card))
             {

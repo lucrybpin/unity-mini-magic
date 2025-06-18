@@ -13,7 +13,7 @@ public class UIMessagesController
     {
         Text.text = message;
         ContainerMessage.SetActive(true);
-        await Task.Delay(TimeSpan.FromSeconds(3f));
+        await Task.Delay(TimeSpan.FromSeconds(2f));
         Text.text = "";
         ContainerMessage.SetActive(false);
     }

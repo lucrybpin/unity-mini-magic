@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -12,15 +13,29 @@ public class UIController : MonoBehaviour
 
     [field: SerializeField] public Button ButtonSkipOpponent { get; private set; }
     [field: SerializeField] public TMP_Text ButtonSkipOpponentText { get; private set; }
+    [field: SerializeField] public TMP_Text PlayerLifeText { get; private set; }
+    [field: SerializeField] public TMP_Text OpponentLifeText { get; private set; }
+    [field: SerializeField] public TMP_Text TimerText { get; private set; }
 
     public Action<int> OnButtonSkipClicked;
     public Action<int> OnButtonPassMainPhase1Click;
     public Action<int> OnButtonPassCombatBeginningPhaseClick;
 
+    private float _timer;
+
     void Awake()
     {
         ButtonSkip.onClick.AddListener(() => { OnButtonSkipClicked(0); });
         ButtonSkipOpponent.onClick.AddListener(() => { OnButtonSkipClicked(1); });
+    }
+
+    void Update()
+    {
+        _timer -= Time.deltaTime;
+        if (_timer > 0)
+            TimerText.text = _timer.ToString("0");
+        else
+            TimerText.text = "";
     }
 
     public Task ShowMessage(string message)
@@ -38,6 +53,19 @@ public class UIController : MonoBehaviour
     {
         ButtonSkipOpponent.gameObject.SetActive(isVisibile);
         ButtonSkipOpponentText.text = buttonText;
+    }
+
+    public void UpdatePlayerLife(int playerIndex, int life)
+    {
+        if (playerIndex == 0)
+            PlayerLifeText.text = life.ToString();
+        else
+            OpponentLifeText.text = life.ToString();
+    }
+
+    public void SetTimer(float time)
+    {
+        _timer = time;
     }
 
 }

@@ -22,6 +22,7 @@ public class MainPhase1Controller
         float mainPhaseTimeout = 120f;
 
         Server.OnPlayerSkipClicked += OnPlayerSkip;
+        Server.OnTimerChanged?.Invoke(mainPhaseTimeout);
         Task timeout = Task.Delay(TimeSpan.FromSeconds(mainPhaseTimeout));
         Task finished = await Task.WhenAny(skipped.Task, timeout);
         Server.OnPlayerSkipClicked -= OnPlayerSkip;

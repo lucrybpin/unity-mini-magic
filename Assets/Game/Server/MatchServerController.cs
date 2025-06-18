@@ -30,6 +30,9 @@ public class MatchServerController
   public Action<int, Card> OnPlayerDrawCard;
   public Action<int, Card> OnPlayerCastCard;
   public Action<Card> OnCardChangedState;
+  public Action<Card, int, ZoneType, ZoneType> OnCardZoneChanged; // card from player moved zone to zone
+  public Action<int, int> OnPlayerLifeChanged;
+  public Action<float> OnTimerChanged;
 
   public Task<bool> PrepareNewMatch(List<CardData> CardListPlayer1, List<CardData> CardListPlayer2)
   {
@@ -108,7 +111,7 @@ public class MatchServerController
 
     Card drawnCard = playerState.Deck[0];
     playerState.Deck.RemoveAt(0);
-    playerState.Hand.Add(drawnCard);
+    ZonesController.MoveCard(drawnCard, playerIndex, ZoneType.Deck, ZoneType.Hand);
     drawnCard.IsInHand = true;
 
     OnPlayerDrawCard?.Invoke(playerIndex, drawnCard);

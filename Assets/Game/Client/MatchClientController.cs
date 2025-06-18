@@ -22,12 +22,15 @@ public class MatchClientController : MonoBehaviour
   [field: SerializeField] public BlockController BlockController { get; private set; }
   [field: SerializeField] public AttackController AttackController { get; private set; }
 
+
   [field: Header("External Controllers and Dependencies")]
   [field: SerializeField] public UIController UIController { get; private set; }
   [field: SerializeField] public CardViewCreator CardViewCreator { get; private set; }
 
+
   [field: Header("Player View Elements")]
   [field: SerializeField] public PlayerView PlayerView { get; private set; }
+
 
   [field: Header("Opponent View Elements")]
   [field: SerializeField] public PlayerView OpponentView { get; private set; }
@@ -41,9 +44,11 @@ public class MatchClientController : MonoBehaviour
     Server.OnPhaseEnded += OnPhaseEnded;
     Server.OnCombatStepStarted += OnCombatStepStart;
     Server.OnCombatStepEnded += OnCombatStepEnded;
-    Server.OnPlayerDrawCard += OnPlayerDrawCard;
     Server.OnPlayerCastCard += OnPlayerCastCard;
     Server.OnCardChangedState += OnCardChangedState;
+    Server.OnCardZoneChanged += OnCardZoneChanged;
+    Server.OnPlayerLifeChanged += OnPlayerReceiveDamage;
+    Server.OnTimerChanged += OnTimerChanged;
     bool result = await Server.PrepareNewMatch(CardListPlayer1, CardListPlayer2);
     PlayerView.OnDeckClicked += OnDeckClick;
     PlayerView.OnCardCastRequested += OnCardCastRequested;
@@ -53,7 +58,6 @@ public class MatchClientController : MonoBehaviour
     // Draw Starting Hand
     PlayerView.ResumeHand();
     await UIController.ShowMessage("Draw 7 Cards");
-    // _ = OpponentDrawHand();
     PlayerView.ViewState = PlayerViewState.Idle;
     PlayerView.DrawEnabled = true;
     await WaitForPlayer1DrawCards(7);
@@ -63,16 +67,17 @@ public class MatchClientController : MonoBehaviour
     Server.StartMatch();
   }
 
-
-    void OnDestroy()
+  void OnDestroy()
   {
     Server.OnPhaseStarted -= OnPhaseStarted;
     Server.OnPhaseEnded -= OnPhaseEnded;
     Server.OnCombatStepStarted -= OnCombatStepStart;
     Server.OnCombatStepEnded -= OnCombatStepEnded;
-    Server.OnPlayerDrawCard -= OnPlayerDrawCard;
     Server.OnPlayerCastCard -= OnPlayerCastCard;
     Server.OnCardChangedState -= OnCardChangedState;
+    Server.OnCardZoneChanged -= OnCardZoneChanged;
+    Server.OnPlayerLifeChanged -= OnPlayerReceiveDamage;
+    Server.OnTimerChanged -= OnTimerChanged;
 
     PlayerView.OnDeckClicked -= OnDeckClick;
     PlayerView.OnCardCastRequested -= OnCardCastRequested;
@@ -80,15 +85,8 @@ public class MatchClientController : MonoBehaviour
     UIController.OnButtonSkipClicked -= OnButtonSkipClick;
   }
 
-  // Server Events
-  void OnPlayerDrawCard(int playerIndex, Card card)
-  {
-    Debug.Log($"<color='green'>Client:</color> Player {playerIndex} drew card {card.Name}");
 
-    PlayerView playerView = (playerIndex == 0) ? PlayerView : OpponentView;
-    CardView newCard      = CardViewCreator.CreateCardView(card, playerIndex);
-    _ = playerView.DrawCard(newCard); ;
-  }
+  // Server Events
 
   async void OnPlayerCastCard(int playerIndex, Card card)
   {
@@ -206,10 +204,10 @@ public class MatchClientController : MonoBehaviour
         break;
 
       case CombatStep.EndCombat:
+
         BlockController.ClearView();
         UIController.SetButtonSkipVisibility(true, "Skip Combat End");
         break;
-
     }
   }
 
@@ -250,17 +248,50 @@ public class MatchClientController : MonoBehaviour
       case CombatStep.EndCombat:
         UIController.SetButtonSkipVisibility(false);
         UIController.SetButtonSkipOpponentVisibility(false);
+        AttackController.ClearAttackers();
+        BlockController.ClearBlockers();
         break;
     }
   }
 
-  private async void OnCardChangedState(Card card)
+  private void OnCardChangedState(Card card)
   {
-    // TODO: instead of using find every time, use only at start and after that add to the _allCards list
-    List<CardView> _allCards = new List<CardView>(FindObjectsByType<CardView>(FindObjectsSortMode.None));
-    CardView cardView = _allCards.Find(x => x.Card == card);
-
+    CardView cardView = FindCardView(card);
     cardView.Refresh();
+  }
+
+  private async void OnCardZoneChanged(Card card, int playerIndex, ZoneType from, ZoneType to)
+  {
+    Debug.Log($"<color='green'>Client:</color> Card Moved From {from} to {to}");
+
+    PlayerView playerView = (playerIndex == 0) ? PlayerView : OpponentView;
+
+    // Draw Card
+    if (from == ZoneType.Deck && to == ZoneType.Hand)
+    {
+      Debug.Log($"<color='green'>Client:</color> Player {playerIndex} drew card {card.Name}");
+      CardView newCard = CardViewCreator.CreateCardView(card, playerIndex);
+      _ = playerView.DrawCard(newCard); ;
+    }
+
+    // Creature to Graveyard
+    if (from == ZoneType.Creature && to == ZoneType.Graveyard)
+    {
+      Debug.Log($"<color='green'>Client:</color> creature {card} from player {playerIndex} died.");
+      CardView cardView = FindCardView(card);
+      await playerView.MoveToGraveyard(cardView);
+    }
+  }
+
+  private void OnPlayerReceiveDamage(int playerIndex, int life)
+  {
+    Debug.Log($"<color='green'>Client:</color> Player {playerIndex}, received Damage. Life: {life}");
+    UIController.UpdatePlayerLife(playerIndex, life);
+  }
+
+  private void OnTimerChanged(float time)
+  {
+    UIController.SetTimer(time);
   }
 
   // Client Events
@@ -369,5 +400,12 @@ public class MatchClientController : MonoBehaviour
     // Logic
     // View
     return Task.FromResult(true);
+  }
+
+  // TODO: instead of using find every time, use only at start and after that add to the _allCards list
+  public CardView FindCardView(Card card)
+  {
+    List<CardView> _allCards = new List<CardView>(FindObjectsByType<CardView>(FindObjectsSortMode.None));
+    return _allCards.Find(x => x.Card == card);
   }
 }
